@@ -8,11 +8,12 @@ import { DetailDrawer, KeyVal } from '../../src/components/DetailDrawer';
 import { TraceabilityTimeline } from '../../src/components/CostingPanels';
 import { Skeleton, useMockLoading } from '../../src/components/Skeleton';
 import { useToast } from '../../src/components/Toast';
+import { Button, Callout, Tabs } from '../../src/components/ui';
 import { useSession } from '../../src/store/session';
 import { buildIdempotencyKey, validateLedgerIntent } from '../../src/lib/ledger';
 import { audit } from '../../src/lib/audit';
 import { demoDb, type Heat } from '../../src/mocks/demo';
-import { tokens } from '../../src/theme/tokens';
+import { fontStack, palette, type } from '../../src/theme/tokens';
 
 const TABS = ['Stock', 'Movements', 'Adjustments', 'Physical', 'Traceability'] as const;
 
@@ -62,13 +63,7 @@ export default function Inventory() {
         <Skeleton />
       ) : (
         <View>
-          <View style={styles.tabs}>
-            {TABS.map((t) => (
-              <Pressable key={t} onPress={() => setTab(t)} style={[styles.tab, tab === t ? styles.on : null]}>
-                <Text style={[styles.tabT, tab === t ? styles.onT : null]}>{t}</Text>
-              </Pressable>
-            ))}
-          </View>
+          <Tabs tabs={TABS} value={tab} onChange={(t) => setTab(t as (typeof TABS)[number])} style={{ marginBottom: 14 }} />
           {tab === 'Stock' ? (
             <DataTable
               columns={[
@@ -111,11 +106,11 @@ export default function Inventory() {
           {tab === 'Traceability' ? (
             <TraceabilityTimeline steps={['H-771 receipt GRN-441 (5,200 kg)', 'Issue 250 kg → WO-881', 'T-501 HF-3 → CF-2 (942 kg good)', 'WIP → FG → Dispatch SO-1042']} />
           ) : null}
-          <View style={styles.row}>
-            <Pressable style={styles.btn} onPress={postIssue}><Text style={styles.btnT}>Post SAMPLE issue (mock)</Text></Pressable>
-            <Pressable style={[styles.btn, styles.btn2]} onPress={attemptOverIssue}><Text style={styles.btnT}>Attempt over-issue (blocked)</Text></Pressable>
+          <View style={[styles.row, { marginTop: 16 }]}>
+            <Button label="Post sample issue" icon="plus" onPress={postIssue} />
+            <Button label="Attempt over-issue" icon="shieldAlert" variant="secondary" onPress={attemptOverIssue} />
           </View>
-          {msg ? <Text style={styles.msg}>{msg}</Text> : null}
+          {msg ? <View style={{ marginTop: 10 }}><Callout tone={msg.startsWith('Blocked') ? 'warn' : 'ok'} compact>{msg}</Callout></View> : null}
         </View>
       )}
       <DetailDrawer visible={heat !== null} title={heat ? `Heat ${heat.id}` : ''} onClose={() => setHeat(null)}>
@@ -129,16 +124,7 @@ export default function Inventory() {
 }
 
 const styles = StyleSheet.create({
-  tabs: { flexDirection: 'row', gap: 6, flexWrap: 'wrap', marginBottom: 12 },
-  tab: { borderWidth: 1, borderColor: tokens.color.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#fff' },
-  on: { backgroundColor: tokens.color.primary, borderColor: tokens.color.primary },
-  tabT: { fontSize: 12, fontWeight: '700', color: tokens.color.text2 },
-  onT: { color: '#fff' },
-  link: { color: tokens.color.primary, fontWeight: '700' },
-  row: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginTop: 12 },
-  btn: { backgroundColor: tokens.color.primary, borderRadius: 10, padding: 12 },
-  btn2: { backgroundColor: tokens.color.dark },
-  btnT: { color: '#fff', fontWeight: '700' },
-  msg: { marginTop: 8, color: tokens.color.text },
-  note: { color: tokens.color.text2, backgroundColor: '#fff', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: tokens.color.border },
+  link: { color: palette.tint, fontWeight: '700', fontFamily: fontStack },
+  row: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+  note: { ...type.footnote, color: palette.text2, fontFamily: fontStack, lineHeight: 20 } as never,
 });

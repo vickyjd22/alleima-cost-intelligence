@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { AppShell } from '../../src/components/AppShell';
 import { PageHeader } from '../../src/components/PageHeader';
 import { DataTable } from '../../src/components/DataTable';
@@ -7,11 +7,13 @@ import { StatusChip } from '../../src/components/StatusChip';
 import { Stepper } from '../../src/components/Stepper';
 import { useSession } from '../../src/store/session';
 import { useToast } from '../../src/components/Toast';
+import { Button, Callout, Card, SectionHeader } from '../../src/components/ui';
+import { Icon } from '../../src/components/Icon';
 import { travellerEntrySchema } from '../../src/lib/validation';
 import { buildIdempotencyKey, validateLedgerIntent } from '../../src/lib/ledger';
 import { audit } from '../../src/lib/audit';
 import { demoDb, resetDemo } from '../../src/mocks/demo';
-import { tokens } from '../../src/theme/tokens';
+import { fontStack, minTouch, palette, radius, type } from '../../src/theme/tokens';
 
 export default function WorkOrders() {
   const { roles, email } = useSession();
@@ -55,28 +57,39 @@ export default function WorkOrders() {
   return (
     <AppShell roles={roles}>
       <PageHeader
-        title="Work Orders & Travellers"
-        sub="Journey C + G: WO → reserve → issue → traveller ops → QC/scrap → FG"
+        eyebrow="Production"
+        title="Work orders & travellers"
+        sub="Journey C + G: work order → reserve → issue → traveller operations → QC / scrap → finished goods."
         right={
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            <Pressable onPress={() => setShop(!shop)}><Text style={styles.link}>{shop ? 'Desktop view' : 'Shop-floor mode'}</Text></Pressable>
-            <Pressable onPress={() => { resetDemo(); toast.show('Demo data reset.'); }}><Text style={styles.link}>Reset demo</Text></Pressable>
+          <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+            <Button label={shop ? 'Desktop view' : 'Shop-floor mode'} size="sm" variant={shop ? 'primary' : 'secondary'} icon={shop ? 'layoutDashboard' : 'hardHat'} onPress={() => setShop(!shop)} />
+            <Button label="Reset demo" size="sm" variant="ghost" icon="refresh" onPress={() => { resetDemo(); toast.show('Demo data reset.'); }} />
           </View>
         }
       />
+
       {shop ? (
-        <View>
-          <Text style={styles.h}>Assigned work — T-501 · WO-881 · PRESS-151 (SAMPLE)</Text>
+        <Card style={{ gap: 12, marginBottom: 16 }}>
+          <View style={styles.shopHead}>
+            <View style={styles.shopIcon}>
+              <Icon name="hardHat" size={18} color={palette.tint} strokeWidth={1.9} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.shopT}>Assigned work — T-501 · WO-881 · PRESS-151</Text>
+              <Text style={styles.shopS}>Large targets, minimal taps, works on a shop-floor tablet.</Text>
+            </View>
+            <StatusChip label="SAMPLE" tone="info" />
+          </View>
           <Stepper steps={['Start operation', 'Record output', 'Scrap / rework', 'Confirm']} current={step} onGo={setStep} />
-          {step === 0 ? <Text style={styles.big}>Press Start to clock on to HF-3.</Text> : null}
+          {step === 0 ? <Text style={styles.big}>Press start to clock on to HF-3.</Text> : null}
           {step === 1 ? <Text style={styles.big}>Enter good output kg with the stepper in the full form below.</Text> : null}
           {step === 2 ? <Text style={styles.big}>Pick defect code: ECT-LINE / DIM-OD / SURFACE.</Text> : null}
-          {step === 3 ? <Text style={styles.big}>Confirmation ref WIP-T-501-OK (mock). Status synced to website.</Text> : null}
-        </View>
+          {step === 3 ? <Text style={styles.big}>Confirmation ref WIP-T-501-OK (mock). Status synced to the website.</Text> : null}
+        </Card>
       ) : (
         <DataTable
           columns={[
-            { key: 'id', header: 'WO', render: (r) => <Text>{r.id}</Text> },
+            { key: 'id', header: 'WO', width: 130, render: (r) => <Text>{r.id}</Text> },
             { key: 'p', header: 'Product', width: 200, render: (r) => <Text>{r.product}</Text> },
             { key: 'q', header: 'Qty', render: (r) => <Text>{String(r.qty)}</Text> },
             { key: 's', header: 'Status', render: (r) => <StatusChip label={r.status} tone="info" /> },
@@ -84,41 +97,42 @@ export default function WorkOrders() {
           rows={demoDb.workOrders}
         />
       )}
-      <Text style={styles.h}>Traveller entry (validated, idempotent, offline-safe)</Text>
+
+      <SectionHeader title="Traveller entry" description="Validated, idempotent and offline-safe — quantities are checked before commit." style={{ marginTop: 24 }} />
       <DataTable
         columns={[
-          { key: 'id', header: 'Traveller', render: (r) => <Text>{r.id}</Text> },
+          { key: 'id', header: 'Traveller', width: 120, render: (r) => <Text>{r.id}</Text> },
           { key: 'p', header: 'Pass', render: (r) => <Text>{r.pass}</Text> },
           { key: 'h', header: 'Heat', render: (r) => <Text>{r.heat}</Text> },
-          { key: 'io', header: 'In → Out kg', render: (r) => <Text>{`${r.inputKg} → ${r.outputKg}`}</Text> },
+          { key: 'io', header: 'In → Out kg', width: 170, render: (r) => <Text>{`${r.inputKg} → ${r.outputKg}`}</Text> },
         ]}
         rows={demoDb.travellers}
       />
-      <View style={styles.grid}>
-        {(['travellerNo', 'woNo', 'pass', 'machineId', 'ccCode', 'heatId', 'inputKg', 'outputKg', 'reworkKg', 'rejectKg'] as const).map((k) => (
-          <View key={k} style={styles.field}>
-            <Text style={styles.label}>{k}</Text>
-            <TextInput value={trav[k]} onChangeText={(v) => setTrav({ ...trav, [k]: v })} style={styles.input} placeholder={trav[k] === '' ? 'enter…' : undefined} />
-          </View>
-        ))}
-      </View>
-      <Pressable style={styles.btn} onPress={submitTraveller}>
-        <Text style={styles.btnT}>Validate & queue (offline-safe mock)</Text>
-      </Pressable>
-      {msg ? <Text style={styles.msg}>{msg}</Text> : null}
+
+      <Card style={{ marginTop: 12, gap: 10 }}>
+        <View style={styles.grid}>
+          {(['travellerNo', 'woNo', 'pass', 'machineId', 'ccCode', 'heatId', 'inputKg', 'outputKg', 'reworkKg', 'rejectKg'] as const).map((k) => (
+            <View key={k} style={styles.field}>
+              <Text style={styles.label}>{k.toUpperCase()}</Text>
+              <TextInput value={trav[k]} onChangeText={(v) => setTrav({ ...trav, [k]: v })} style={styles.input} placeholder={trav[k] === '' ? 'enter…' : undefined} placeholderTextColor={palette.text3 as never} accessibilityLabel={k} />
+            </View>
+          ))}
+        </View>
+        <Button label="Validate & queue" icon="check" onPress={submitTraveller} style={{ alignSelf: 'flex-start' }} />
+        {msg ? <Callout tone={msg.startsWith('Validation') || msg.includes('Blocked') ? 'warn' : 'ok'} compact>{msg}</Callout> : null}
+      </Card>
     </AppShell>
   );
 }
 
 const styles = StyleSheet.create({
-  link: { color: tokens.color.primary, fontWeight: '700' },
-  h: { fontWeight: '700', color: tokens.color.text, marginTop: 16, marginBottom: 8 },
-  big: { fontSize: 16, color: tokens.color.text, backgroundColor: '#fff', borderRadius: 12, padding: 20, borderWidth: 1, borderColor: tokens.color.border },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
+  shopHead: { flexDirection: 'row', alignItems: 'center', gap: 10, flexWrap: 'wrap' },
+  shopIcon: { width: 36, height: 36, borderRadius: 10, backgroundColor: palette.tintSoft, alignItems: 'center', justifyContent: 'center' },
+  shopT: { ...type.headline, color: palette.text, fontFamily: fontStack } as never,
+  shopS: { ...type.caption1, color: palette.text3, marginTop: 1, fontFamily: fontStack } as never,
+  big: { ...type.body, color: palette.text, backgroundColor: palette.bgAlt, borderRadius: radius.sm, padding: 16, fontFamily: fontStack } as never,
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   field: { minWidth: 150, flex: 1 },
-  label: { fontSize: 11, fontWeight: '700', color: tokens.color.text2, marginBottom: 4 },
-  input: { borderWidth: 1, borderColor: tokens.color.border, borderRadius: 10, padding: 14, backgroundColor: '#fff', fontSize: 16 },
-  btn: { backgroundColor: tokens.color.primary, borderRadius: 10, padding: 14, marginTop: 12, alignItems: 'center' },
-  btnT: { color: '#fff', fontWeight: '700' },
-  msg: { marginTop: 8, color: tokens.color.text },
+  label: { ...type.caption2, color: palette.text3, marginBottom: 4, fontFamily: fontStack } as never,
+  input: { borderWidth: 1, borderColor: palette.border, borderRadius: radius.sm, paddingHorizontal: 12, paddingVertical: 10, minHeight: minTouch, backgroundColor: palette.card, fontSize: 14, color: palette.text, fontFamily: fontStack, outlineStyle: 'none' } as never,
 });

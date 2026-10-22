@@ -10,11 +10,12 @@ import { ApprovalTimeline } from '../../src/components/Governance';
 import { DetailDrawer, KeyVal } from '../../src/components/DetailDrawer';
 import { Skeleton, useMockLoading } from '../../src/components/Skeleton';
 import { useToast } from '../../src/components/Toast';
+import { Button, Tabs } from '../../src/components/ui';
 import { useSession } from '../../src/store/session';
 import { machineHourRate, materialPriceVariance, materialUsageVariance, yieldPct } from '../../src/lib/costing';
 import { audit } from '../../src/lib/audit';
 import { DRIVER_MATRIX, OVERHEAD_MATRIX, ABNORMAL_ITEMS, WATERFALL, PROFIT_DIMS } from '../../src/mocks/manual';
-import { tokens } from '../../src/theme/tokens';
+import { fontStack, palette, radius, type } from '../../src/theme/tokens';
 
 /** Costing: §7/§15 workbench · §15 allocation · §16/§17 overheads · §19 quotation. Candidate math, SAMPLE only. */
 const TABS = ['Workbench', 'Allocation §15', 'Overheads §16/17', 'Quotation §19'] as const;
@@ -72,13 +73,7 @@ export default function Costing() {
   return (
     <AppShell roles={roles}>
       <PageHeader title="Costing Workbench" sub="§1 formula: RM + Conversion + Quality/Testing + Packing + Prod OH ± WIP" right={<PeriodSelector />} />
-      <View style={styles.tabs}>
-        {TABS.map((t) => (
-          <Pressable key={t} onPress={() => setTab(t)} style={[styles.tab, tab === t ? styles.on : null]}>
-            <Text style={[styles.tabT, tab === t ? styles.onT : null]}>{t}</Text>
-          </Pressable>
-        ))}
-      </View>
+      <Tabs tabs={TABS} value={tab} onChange={(t) => setTab(t as (typeof TABS)[number])} style={{ marginBottom: 14 }} />
       {loading ? (
         <Skeleton lines={5} />
       ) : tab === 'Workbench' ? (
@@ -107,9 +102,9 @@ export default function Costing() {
           <CostBreakdownPanel lines={[{ label: 'Idle labour (SAMPLE)', value: 'Normal 64h in rate · abnormal 18h excluded (§8.4)' }, { label: 'Idle capacity (SAMPLE)', value: 'Practical 6,000h · actual 5,640h · idle visible (§9.3)' }, { label: 'inputsHash', value: 'a91f…c2 (SAMPLE)' }]} />
           <TraceabilityTimeline steps={['ORDER SO-1042', 'WO-881 → HEAT H-771', 'Traveller T-501 HF→CF', 'WIP → FG → Dispatch']} />
           <ApprovalTimeline steps={[{ label: 'Calculate (Costing)', state: 'done', by: 'costing.mgr' }, { label: 'Submit for review', state: status === 'draft' ? 'now' : 'done' }, { label: 'Approve + lock (Finance)', state: status === 'approved' ? 'done' : 'todo' }]} />
-          <View style={styles.row}>
-            <Pressable style={styles.btn} onPress={submit}><Text style={styles.btnT}>Submit (mock)</Text></Pressable>
-            <Pressable style={[styles.btn, styles.btn2]} onPress={approve}><Text style={styles.btnT}>Approve + lock (mock)</Text></Pressable>
+          <View style={[styles.row, { marginTop: 16 }]}>
+            <Button label="Submit for review" icon="upload" onPress={submit} disabled={status !== 'draft'} />
+            <Button label="Approve + lock" icon="lock" variant="success" onPress={approve} disabled={status !== 'submitted'} />
           </View>
         </View>
       ) : tab === 'Allocation §15' ? (
@@ -156,22 +151,14 @@ export default function Costing() {
 }
 
 const styles = StyleSheet.create({
-  tabs: { flexDirection: 'row', gap: 6, flexWrap: 'wrap', marginBottom: 12 },
-  tab: { borderWidth: 1, borderColor: tokens.color.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#fff' },
-  on: { backgroundColor: tokens.color.primary, borderColor: tokens.color.primary },
-  tabT: { fontSize: 12, fontWeight: '700', color: tokens.color.text2 },
-  onT: { color: '#fff' },
-  row: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginTop: 12, alignItems: 'center' },
-  link: { color: tokens.color.primary, fontWeight: '700', fontSize: 13 },
-  btn: { backgroundColor: tokens.color.primary, borderRadius: 10, padding: 12 },
-  btn2: { backgroundColor: tokens.color.dark },
-  btnT: { color: '#fff', fontWeight: '700' },
-  h: { fontWeight: '700', color: tokens.color.text, marginTop: 16, marginBottom: 8 },
-  li: { fontSize: 13, color: tokens.color.text, paddingVertical: 2 },
-  note: { color: tokens.color.text2, fontSize: 12, marginTop: 8 },
-  qrow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: tokens.color.border, padding: 10, marginBottom: 8 },
-  qlabel: { fontWeight: '700', color: tokens.color.text },
+  row: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', alignItems: 'center' },
+  link: { color: palette.tint, fontWeight: '700', fontSize: 13, fontFamily: fontStack },
+  h: { ...type.headline, color: palette.text, marginTop: 20, marginBottom: 10, fontFamily: fontStack } as never,
+  li: { ...type.footnote, color: palette.text, paddingVertical: 2, fontFamily: fontStack } as never,
+  note: { ...type.caption1, color: palette.text2, marginTop: 10, lineHeight: 18, fontFamily: fontStack } as never,
+  qrow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: palette.card, borderRadius: radius.sm, borderWidth: 1, borderColor: palette.border, padding: 12, marginBottom: 8, gap: 10 },
+  qlabel: { ...type.footnote, fontWeight: '700', color: palette.text, fontFamily: fontStack } as never,
   qbtns: { flexDirection: 'row', gap: 8 },
-  qbtn: { backgroundColor: tokens.color.bg, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: tokens.color.border },
-  qbtnT: { fontWeight: '800', fontSize: 16, color: tokens.color.primary },
+  qbtn: { backgroundColor: palette.cardMuted, borderRadius: 8, paddingHorizontal: 16, minHeight: 36, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: palette.border, cursor: 'pointer' } as never,
+  qbtnT: { fontWeight: '800', fontSize: 16, color: palette.tint, fontFamily: fontStack },
 });

@@ -1,15 +1,16 @@
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text } from 'react-native';
 import { AppShell } from '../../src/components/AppShell';
 import { PageHeader } from '../../src/components/PageHeader';
 import { DataTable } from '../../src/components/DataTable';
 import { StatusChip } from '../../src/components/StatusChip';
 import { Skeleton, useMockLoading } from '../../src/components/Skeleton';
 import { useToast } from '../../src/components/Toast';
+import { Button, Callout } from '../../src/components/ui';
 import { useSession } from '../../src/store/session';
 import { audit } from '../../src/lib/audit';
 import { demoDb } from '../../src/mocks/demo';
-import { tokens } from '../../src/theme/tokens';
+
 
 export default function Planning() {
   const { roles, email } = useSession();
@@ -34,11 +35,13 @@ export default function Planning() {
               { key: 'f', header: 'Flow', render: (r) => <Text>{r.flow}</Text> },
               { key: 'q', header: 'Qty (t)', render: (r) => <Text>{String(r.qty)}</Text> },
               { key: 's', header: 'State', render: (r) => <StatusChip label={r.state} tone="info" /> },
-              { key: 'a', header: '', render: (r) => <Pressable onPress={() => release(r.id)}><Text style={{ color: tokens.color.primary, fontWeight: '700' }}>Release</Text></Pressable> },
+              { key: 'a', header: '', width: 120, render: (r) => <Button label="Release" size="sm" variant="secondary" icon="arrowRight" onPress={() => release(r.id)} /> },
             ]}
             rows={demoDb.plans}
           />
-          <Text style={{ color: tokens.color.text2, fontSize: 12, marginTop: 8 }}>Release creates a WO + reservation lines (mock) — see Work Orders.</Text>
+          <View style={{ marginTop: 12 }}>
+            <Callout tone="info" compact>Release creates a work order and reservation lines (mock) — continue in Work Orders.</Callout>
+          </View>
         </View>
       )}
     </AppShell>

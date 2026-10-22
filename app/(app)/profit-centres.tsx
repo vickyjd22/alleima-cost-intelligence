@@ -6,7 +6,9 @@ import { DataTable } from '../../src/components/DataTable';
 import { StatusChip } from '../../src/components/StatusChip';
 import { DetailDrawer, KeyVal } from '../../src/components/DetailDrawer';
 import { Skeleton, useMockLoading } from '../../src/components/Skeleton';
+import { Callout } from '../../src/components/ui';
 import { useSession } from '../../src/store/session';
+import { palette } from '../../src/theme/tokens';
 import { reconcileSopic, pcBridge } from '../../src/lib/reconciliation';
 import { demoDb } from '../../src/mocks/demo';
 import { SAMPLE_PROFIT_CENTRES, KNOWN_PCS } from '../../src/data/sample';
@@ -32,13 +34,13 @@ export default function ProfitCentres() {
               { key: 'desc', header: 'Description', width: 240, render: (r) => <Text>{r.desc}</Text> },
               { key: 'v', header: 'SAMPLE value ₹', render: (r) => <Text>{String(bridge[r.code]?.value ?? 0)}</Text> },
               { key: 's', header: 'Status', render: (r) => <StatusChip label={r.code === '514' ? 'interim-watch' : 'active'} tone={r.code === '514' ? 'warn' : 'ok'} /> },
-              { key: 'o', header: '', render: (r) => <Text style={{ color: '#4F46E5', fontWeight: '700' }} onPress={() => setSel(r)}>Open</Text> },
+              { key: 'o', header: '', width: 90, render: (r) => <Text style={{ color: palette.tint, fontWeight: '700' }} onPress={() => setSel(r)}>Open</Text> },
             ]}
             rows={SAMPLE_PROFIT_CENTRES.map((r) => ({ ...r, id: r.code }))}
           />
-          <Text style={{ color: '#667085', fontSize: 12, marginTop: 8 }}>
-            Rule: post to correct PC at source; manual 514 → 513/517 journals carry source ref, reason, maker/checker.
-          </Text>
+          <View style={{ marginTop: 12 }}>
+            <Callout tone="neutral" compact>Post to the correct profit centre at source. Manual 514 → 513/517 journals must carry a source reference, reason and maker/checker.</Callout>
+          </View>
         </View>
       )}
       <DetailDrawer visible={sel !== null} title={sel ? `PC ${sel.code}` : ''} onClose={() => setSel(null)}>

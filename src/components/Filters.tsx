@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
-import { useAppleTheme, type, radius, minTouch, fontStack } from '../theme/tokens';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSession } from '../store/session';
+import { Icon } from './Icon';
+import { fontStack, minTouch, palette, radius, type } from '../theme/tokens';
 
 const PERIODS = ['202607', '202608', '202609', '202610'];
 
-/** HIG segmented period control: system-fill track, 44pt options, selected card. */
+/** Segmented reporting-period control with a quiet track and raised selection. */
 export function PeriodSelector() {
-  const { palette } = useAppleTheme();
   const { period, setSession } = useSession();
   return (
     <View style={styles.row}>
-      <Text style={[styles.label, { color: palette.text2 }]}>PERIOD</Text>
-      <View style={[styles.seg, { backgroundColor: palette.filled }]}>
+      <View style={styles.labelWrap}>
+        <Icon name="calendarDays" size={14} color={palette.text2} />
+        <Text style={styles.label}>PERIOD</Text>
+      </View>
+      <View style={styles.seg}>
         {PERIODS.map((p) => {
           const on = p === period;
           return (
@@ -22,7 +25,7 @@ export function PeriodSelector() {
               accessibilityRole="button"
               accessibilityLabel={`Period ${p}`}
               accessibilityState={{ selected: on }}
-              style={[styles.opt, on ? { backgroundColor: palette.card, ...styles.shadow } : null]}
+              style={[styles.opt, on && styles.optOn]}
             >
               <Text style={[styles.optT, { color: on ? palette.text : palette.text2 }]}>{p.slice(4)}</Text>
             </Pressable>
@@ -33,13 +36,12 @@ export function PeriodSelector() {
   );
 }
 
-/** HIG search field: system-fill, 10pt corners, clear button, 44pt row. */
+/** Search field with a leading icon and clear affordance. */
 export function SearchField({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
-  const { palette } = useAppleTheme();
   const [focused, setFocused] = useState(false);
   return (
-    <View style={[styles.field, { backgroundColor: palette.filled }, focused ? { borderColor: palette.tint, borderWidth: 1.5 } : null]}>
-      <Text style={[styles.glyph, { color: palette.text2 }]}>⌕</Text>
+    <View style={[styles.field, focused && styles.fieldFocus]}>
+      <Icon name="search" size={17} color={focused ? palette.tint : palette.text3} strokeWidth={2} />
       <TextInput
         value={value}
         onChangeText={onChange}
@@ -47,13 +49,13 @@ export function SearchField({ value, onChange, placeholder }: { value: string; o
         onBlur={() => setFocused(false)}
         placeholder={placeholder ?? 'Search'}
         placeholderTextColor={palette.text3 as never}
-        style={[styles.input, { color: palette.text }]}
+        style={styles.input}
         accessibilityLabel={placeholder ?? 'Search'}
         returnKeyType="search"
       />
       {value ? (
         <Pressable onPress={() => onChange('')} style={styles.clear} accessibilityRole="button" accessibilityLabel="Clear search">
-          <Text style={[styles.clearT, { color: palette.text2 }]}>✕</Text>
+          <Icon name="x" size={13} color={palette.text2} strokeWidth={2.4} />
         </Pressable>
       ) : null}
     </View>
@@ -62,14 +64,32 @@ export function SearchField({ value, onChange, placeholder }: { value: string; o
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
-  label: { ...type.caption2, letterSpacing: 0.4, fontFamily: fontStack as never } as never,
-  seg: { flexDirection: 'row', borderRadius: radius.input, padding: 2, gap: 2 },
-  opt: { minHeight: minTouch - 8, minWidth: minTouch, paddingHorizontal: 12, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
-  shadow: { shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 1 },
-  optT: { fontSize: 13, fontWeight: '600' },
-  field: { flexDirection: 'row', alignItems: 'center', borderRadius: radius.input, paddingHorizontal: 10, minHeight: minTouch, gap: 6, minWidth: 200 },
-  glyph: { fontSize: 15 },
-  input: { flex: 1, fontSize: 17, paddingVertical: 6, outlineStyle: 'none' } as never,
-  clear: { minWidth: 28, minHeight: 28, alignItems: 'center', justifyContent: 'center' },
-  clearT: { fontSize: 12, fontWeight: '700' },
+  labelWrap: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  label: { ...type.caption2, color: palette.text3, fontFamily: fontStack } as never,
+  seg: { flexDirection: 'row', backgroundColor: palette.bgAlt, borderRadius: 10, padding: 3, gap: 2 },
+  opt: { minHeight: 32, minWidth: minTouch, paddingHorizontal: 10, borderRadius: 7, alignItems: 'center', justifyContent: 'center' },
+  optOn: {
+    backgroundColor: palette.card,
+    shadowColor: '#0A1B33',
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 1,
+  } as never,
+  optT: { fontSize: 12, fontWeight: '700', fontFamily: fontStack },
+  field: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderRadius: radius.sm,
+    paddingHorizontal: 12,
+    minHeight: minTouch,
+    minWidth: 220,
+    backgroundColor: palette.card,
+    borderWidth: 1,
+    borderColor: palette.border,
+  },
+  fieldFocus: { borderColor: palette.tint, shadowColor: palette.tint, shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } } as never,
+  input: { flex: 1, fontSize: 14, paddingVertical: 6, color: palette.text, fontFamily: fontStack, outlineStyle: 'none' } as never,
+  clear: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.filled },
 });

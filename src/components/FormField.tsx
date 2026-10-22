@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Pressable } from 'react-native';
-import { useAppleTheme, type, radius, minTouch, fontStack } from '../theme/tokens';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Icon } from './Icon';
+import { fontStack, minTouch, palette, radius, type } from '../theme/tokens';
 
-/**
- * HIG form controls:
- * - 44pt minimum touch/button height, 10pt continuous corners.
- * - iOS grouped-field look; focus ring via tint border; inline error with
- *   icon + message (never color-only); `accessibilityLabel` passthrough.
- */
 export function FormField({ label, value, onChange, error, placeholder, secure, keyboard, hint }: {
   label: string;
   value: string;
@@ -18,11 +13,10 @@ export function FormField({ label, value, onChange, error, placeholder, secure, 
   keyboard?: 'default' | 'numeric' | 'email-address';
   hint?: string;
 }) {
-  const { palette } = useAppleTheme();
   const [focused, setFocused] = useState(false);
   return (
     <View style={styles.f}>
-      <Text style={[styles.label, { color: palette.text }]}>{label}</Text>
+      <Text style={styles.label}>{label}</Text>
       <TextInput
         value={value}
         onChangeText={onChange}
@@ -33,18 +27,14 @@ export function FormField({ label, value, onChange, error, placeholder, secure, 
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         accessibilityLabel={label}
-        style={[
-          styles.input,
-          { backgroundColor: palette.card, borderColor: palette.separator, color: palette.text },
-          focused ? { borderColor: palette.tint, borderWidth: 1.5 } : null,
-          error ? { borderColor: palette.error, borderWidth: 1.5 } : null,
-        ]}
+        style={[styles.input, focused && { borderColor: palette.tint }, error ? { borderColor: palette.error } : null]}
       />
-      {hint && !error ? <Text style={[styles.hint, { color: palette.text2 }]}>{hint}</Text> : null}
+      {hint && !error ? <Text style={styles.hint}>{hint}</Text> : null}
       {error ? (
-        <Text style={[styles.err, { color: palette.error }]} accessibilityRole="alert">
-          ⚠ {error}
-        </Text>
+        <View style={styles.errRow} accessibilityRole="alert">
+          <Icon name="alertCircle" size={13} color={palette.error} />
+          <Text style={styles.err}>{error}</Text>
+        </View>
       ) : null}
     </View>
   );
@@ -56,21 +46,20 @@ export function PrimaryButton({ label, onPress, tone = 'primary', disabled }: {
   tone?: 'primary' | 'neutral' | 'danger';
   disabled?: boolean;
 }) {
-  const { palette } = useAppleTheme();
+  const [pressed, setPressed] = useState(false);
   const bg = tone === 'primary' ? palette.tint : tone === 'danger' ? palette.error : palette.filled;
   const fg = tone === 'neutral' ? palette.tint : '#fff';
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled: !!disabled }}
       hitSlop={8}
-      style={({ pressed }) => [
-        styles.btn,
-        { backgroundColor: bg, opacity: disabled ? 0.45 : pressed ? 0.75 : 1 },
-      ]}
+      style={[styles.btn, { backgroundColor: bg, opacity: disabled ? 0.45 : pressed ? 0.82 : 1 }]}
     >
       <Text style={[styles.btnT, { color: fg as never }]}>{label}</Text>
     </Pressable>
@@ -78,25 +67,23 @@ export function PrimaryButton({ label, onPress, tone = 'primary', disabled }: {
 }
 
 const styles = StyleSheet.create({
-  f: { marginBottom: 12 },
-  label: { ...type.subhead, fontWeight: '600', marginBottom: 6, fontFamily: fontStack as never } as never,
+  f: { marginBottom: 14 },
+  label: { ...type.footnote, color: palette.text, fontWeight: '600', marginBottom: 6, fontFamily: fontStack } as never,
   input: {
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 1,
+    borderColor: palette.borderStrong,
     borderRadius: radius.input,
     paddingHorizontal: 12,
     minHeight: minTouch,
-    fontSize: 17,
-    fontFamily: fontStack as never,
+    fontSize: 14,
+    color: palette.text,
+    backgroundColor: palette.card,
+    fontFamily: fontStack,
+    outlineStyle: 'none',
   } as never,
-  hint: { ...type.footnote, marginTop: 4, fontFamily: fontStack as never } as never,
-  err: { ...type.footnote, fontWeight: '600', marginTop: 4, fontFamily: fontStack as never } as never,
-  btn: {
-    borderRadius: radius.button,
-    minHeight: minTouch,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 6,
-  },
-  btnT: { ...type.headline, fontFamily: fontStack as never } as never,
+  hint: { ...type.caption1, color: palette.text3, marginTop: 4, fontFamily: fontStack } as never,
+  errRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 5 },
+  err: { ...type.caption1, color: palette.error, fontWeight: '600', flex: 1, fontFamily: fontStack } as never,
+  btn: { borderRadius: radius.button, minHeight: minTouch, paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center', marginTop: 6 },
+  btnT: { ...type.headline, fontFamily: fontStack } as never,
 });

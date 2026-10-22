@@ -1,18 +1,24 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { useAppleTheme, type, radius, fontStack } from '../theme/tokens';
+import { StyleSheet, Text, View } from 'react-native';
+import { Icon } from './Icon';
+import { fontStack, palette, radius, type } from '../theme/tokens';
 
-/** Persistent demo-mode indicator: HIG footnote banner, tinted fill, always visible. */
+/** Plain-spoken demo boundary — visible wherever sample data is on screen. */
 export function DemoBanner() {
-  const { palette } = useAppleTheme();
   return (
-    <View style={[styles.bar, { backgroundColor: palette.filled }]} accessibilityRole="alert">
-      <View style={[styles.chip, { backgroundColor: palette.warning }]}>
-        <Text style={styles.chipT}>DEMO</Text>
+    <View style={styles.bar} accessibilityRole="alert">
+      <View style={styles.icon}>
+        <Icon name="flask" size={16} color={palette.warning} strokeWidth={1.9} />
       </View>
-      <Text style={[styles.text, { color: palette.text }]} numberOfLines={2}>
-        Sample data · simulated actions — nothing posts to production ledgers or ERP.
-      </Text>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.title}>Demo environment</Text>
+        <Text style={styles.text}>
+          Sample data and simulated actions — nothing posts to production ledgers, ERP or payroll.
+        </Text>
+      </View>
+      <View style={styles.tag}>
+        <Text style={styles.tagT}>DEMO</Text>
+      </View>
     </View>
   );
 }
@@ -21,13 +27,18 @@ const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
     borderRadius: radius.group,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginBottom: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    backgroundColor: palette.warningSoft,
+    borderWidth: 1,
+    borderColor: palette.warningBorder,
+    marginBottom: 16,
   },
-  chip: { borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
-  chipT: { ...type.caption2, color: '#fff', fontFamily: fontStack as never } as never,
-  text: { ...type.footnote, flex: 1, fontFamily: fontStack as never } as never,
+  icon: { width: 30, height: 30, borderRadius: 9, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+  title: { ...type.footnote, color: palette.warning, fontWeight: '700', fontFamily: fontStack } as never,
+  text: { ...type.caption1, color: palette.text2, fontFamily: fontStack, marginTop: 1 } as never,
+  tag: { paddingHorizontal: 7, paddingVertical: 3, borderRadius: 6, backgroundColor: palette.warning },
+  tagT: { fontSize: 9, fontWeight: '800', color: '#fff', letterSpacing: 0.7, fontFamily: fontStack },
 });

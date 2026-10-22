@@ -8,11 +8,12 @@ import { DetailDrawer, KeyVal } from '../../src/components/DetailDrawer';
 import { CostBreakdownPanel } from '../../src/components/CostingPanels';
 import { Skeleton, useMockLoading } from '../../src/components/Skeleton';
 import { useToast } from '../../src/components/Toast';
+import { Button } from '../../src/components/ui';
+import { palette } from '../../src/theme/tokens';
 import { useSession } from '../../src/store/session';
 import { audit } from '../../src/lib/audit';
 import { demoDb, type Inspection } from '../../src/mocks/demo';
 import { COQ } from '../../src/mocks/manual';
-import { tokens } from '../../src/theme/tokens';
 
 const DEFECTS = [
   { id: 'ECT-LINE', code: 'ECT-LINE', process: 'ECT & Marking 820410335', action: 'rework → retest' },
@@ -76,18 +77,16 @@ export default function Quality() {
         <KeyVal k="Qty" v={String(sel?.qty ?? '')} />
         <KeyVal k="Disposition" v={sel?.disp ?? ''} />
         <KeyVal k="Cost trail" v="originating process → defect → qty → cost → recovery → root cause (§12.3)" />
-        <Pressable style={styles.btn} onPress={() => { if (sel) hold(sel.id); setSel(null); }}>
-          <Text style={styles.btnT}>Place QC hold (mock)</Text>
-        </Pressable>
+        <View style={{ marginTop: 12 }}>
+          <Button label="Place QC hold" icon="shieldAlert" variant="danger" onPress={() => { if (sel) hold(sel.id); setSel(null); }} fullWidth />
+        </View>
       </DetailDrawer>
     </AppShell>
   );
 }
 
 const styles = StyleSheet.create({
-  h: { fontWeight: '700', color: tokens.color.text, marginTop: 16, marginBottom: 8 },
-  link: { color: tokens.color.primary, fontWeight: '700' },
-  note: { color: tokens.color.text2, fontSize: 12, marginTop: 8 },
-  btn: { backgroundColor: tokens.color.primary, borderRadius: 10, padding: 12, marginTop: 12, alignItems: 'center' },
-  btnT: { color: '#fff', fontWeight: '700' },
+  h: { fontWeight: '700', color: palette.text, marginTop: 20, marginBottom: 10, fontSize: 15 },
+  link: { color: palette.tint, fontWeight: '700' },
+  note: { color: palette.text2, fontSize: 12, marginTop: 10, lineHeight: 18 },
 });

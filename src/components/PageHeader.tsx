@@ -1,27 +1,34 @@
 import React from 'react';
-import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
-import { useAppleTheme, type, fontStack } from '../theme/tokens';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { fontStack, palette, type } from '../theme/tokens';
 
 /**
- * HIG page header: iOS large-title style. Title uses Title1/LargeTitle with
- * tight tracking; description is a secondary-label subhead. Never truncates
- * the primary action (`right`) — it wraps below on narrow screens.
+ * Page header: an eyebrow for context, a confident title, a plain-language
+ * description, and one clear action cluster. Text never truncates the action;
+ * on narrow screens the actions wrap underneath.
  */
-export function PageHeader({ title, sub, right }: { title: string; sub?: string; right?: React.ReactNode }) {
-  const { palette } = useAppleTheme();
+export function PageHeader({
+  title,
+  sub,
+  right,
+  eyebrow,
+}: {
+  title: string;
+  sub?: string;
+  right?: React.ReactNode;
+  eyebrow?: string;
+}) {
   const { width } = useWindowDimensions();
   const large = width >= 900;
   return (
     <View style={styles.wrap} accessibilityRole="header">
       <View style={styles.textWrap}>
-        <Text
-          style={[styles.title, large ? styles.large : styles.compact, { color: palette.text }]}
-          accessibilityRole="header"
-        >
+        {eyebrow ? <Text style={styles.eyebrow}>{eyebrow.toUpperCase()}</Text> : null}
+        <Text style={[styles.title, large ? styles.large : styles.compact]} accessibilityRole="header">
           {title}
         </Text>
         {sub ? (
-          <Text style={[styles.sub, { color: palette.text2 }]} maxFontSizeMultiplier={1.3}>
+          <Text style={styles.sub} maxFontSizeMultiplier={1.3}>
             {sub}
           </Text>
         ) : null}
@@ -36,14 +43,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    marginBottom: 16,
+    marginBottom: 20,
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 12,
   },
-  textWrap: { flex: 1, minWidth: 200 },
-  title: { fontFamily: fontStack as never, letterSpacing: -0.4 } as never,
+  textWrap: { flex: 1, minWidth: 240, gap: 5 },
+  eyebrow: { ...type.caption2, color: palette.tint, fontFamily: fontStack, letterSpacing: 0.9 } as never,
+  title: { fontFamily: fontStack, color: palette.text, letterSpacing: -0.7 } as never,
   large: { ...type.title1 } as never,
   compact: { ...type.title2 } as never,
-  sub: { ...type.subhead, marginTop: 4, fontFamily: fontStack as never } as never,
+  sub: { ...type.body, color: palette.text2, fontFamily: fontStack, maxWidth: 820 } as never,
   right: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
 });

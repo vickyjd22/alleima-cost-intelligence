@@ -1,59 +1,109 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { tokens } from '../theme/tokens';
+import { StyleSheet, Text, View } from 'react-native';
+import { Icon, type IconName } from './Icon';
+import { Card } from './ui';
+import { fontStack, palette, radius, type } from '../theme/tokens';
+
+function PanelHead({ icon, title, hint }: { icon: IconName; title: string; hint?: string }) {
+  return (
+    <View style={styles.head}>
+      <View style={styles.headIcon}>
+        <Icon name={icon} size={16} color={palette.tint} strokeWidth={1.9} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.headTitle}>{title}</Text>
+        {hint ? <Text style={styles.headHint}>{hint}</Text> : null}
+      </View>
+    </View>
+  );
+}
 
 export function CostBreakdownPanel({ lines }: { lines: { label: string; value: string }[] }) {
   return (
-    <View style={styles.card}>
-      <Text style={styles.h}>Cost breakdown</Text>
-      {lines.map((l) => (
-        <View key={l.label} style={styles.row}>
-          <Text style={styles.label}>{l.label}</Text>
-          <Text style={styles.val}>{l.value}</Text>
-        </View>
-      ))}
-    </View>
+    <Card style={{ marginTop: 14 }}>
+      <PanelHead icon="layers" title="Cost breakdown" hint="Every figure is traceable to its source record" />
+      <View style={styles.rows}>
+        {lines.map((l, i) => (
+          <View key={l.label} style={[styles.row, i < lines.length - 1 && styles.rowBorder]}>
+            <Text style={styles.label}>{l.label}</Text>
+            <Text style={styles.val}>{l.value}</Text>
+          </View>
+        ))}
+      </View>
+    </Card>
   );
 }
 
 export function TraceabilityTimeline({ steps }: { steps: string[] }) {
   return (
-    <View style={styles.card}>
-      <Text style={styles.h}>Traceability</Text>
-      {steps.map((s, i) => (
-        <View key={i} style={styles.trow}>
-          <View style={styles.dot} />
-          <Text style={styles.label}>{s}</Text>
-        </View>
-      ))}
-    </View>
+    <Card style={{ marginTop: 14 }}>
+      <PanelHead icon="workflow" title="Traceability" hint="Source → work order → traveller → dispatch" />
+      <View style={{ marginTop: 10 }}>
+        {steps.map((s, i) => (
+          <View key={i} style={styles.trow}>
+            <View style={styles.stepCol}>
+              <View style={[styles.stepDot, i === steps.length - 1 && { backgroundColor: palette.accent, borderColor: palette.accentSoft }]}>
+                <Text style={styles.stepNum}>{i + 1}</Text>
+              </View>
+              {i < steps.length - 1 ? <View style={styles.stepLine} /> : null}
+            </View>
+            <Text style={styles.stepText}>{s}</Text>
+          </View>
+        ))}
+      </View>
+    </Card>
   );
 }
 
-export function ChartCard({ title, bars }: { title: string; bars: { label: string; pct: number }[] }) {
+export function ChartCard({ title, bars, hint }: { title: string; bars: { label: string; pct: number }[]; hint?: string }) {
   return (
-    <View style={styles.card}>
-      <Text style={styles.h}>{title}</Text>
-      {bars.map((b) => (
-        <View key={b.label} style={{ marginTop: 8 }}>
-          <Text style={styles.label}>{b.label}</Text>
-          <View style={styles.track}>
-            <View style={[styles.fill, { width: `${Math.max(0, Math.min(100, b.pct))}%` }]} />
+    <Card style={{ marginTop: 14 }}>
+      <PanelHead icon="barChart" title={title} hint={hint} />
+      <View style={{ marginTop: 14, gap: 12 }}>
+        {bars.map((b) => (
+          <View key={b.label}>
+            <View style={styles.barHead}>
+              <Text style={styles.barLabel}>{b.label}</Text>
+              <Text style={styles.barValue}>{b.pct}%</Text>
+            </View>
+            <View style={styles.track}>
+              <View style={[styles.fill, { width: `${Math.max(0, Math.min(100, b.pct))}%` }]} />
+            </View>
           </View>
-        </View>
-      ))}
-    </View>
+        ))}
+      </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: tokens.color.card, borderRadius: tokens.radius.card, borderWidth: 1, borderColor: tokens.color.border, padding: 16, marginTop: 12 },
-  h: { fontWeight: '700', color: tokens.color.text },
-  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: '#F1F4F9' },
-  trow: { flexDirection: 'row', gap: 8, alignItems: 'center', paddingVertical: 4 },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: tokens.color.primary },
-  label: { fontSize: 12, color: tokens.color.text2 },
-  val: { fontSize: 13, fontWeight: '700', color: tokens.color.text },
-  track: { height: 8, backgroundColor: '#EEF0FF', borderRadius: 4, marginTop: 4 },
-  fill: { height: 8, backgroundColor: tokens.color.primary, borderRadius: 4 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 9 },
+  headIcon: { width: 30, height: 30, borderRadius: 9, backgroundColor: palette.tintSoft, alignItems: 'center', justifyContent: 'center' },
+  headTitle: { ...type.headline, color: palette.text, fontFamily: fontStack } as never,
+  headHint: { ...type.caption1, color: palette.text3, fontFamily: fontStack, marginTop: 1 } as never,
+  rows: { marginTop: 8 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 14, paddingVertical: 10 },
+  rowBorder: { borderBottomWidth: 1, borderBottomColor: palette.separator },
+  label: { ...type.footnote, color: palette.text2, flex: 1, fontFamily: fontStack } as never,
+  val: { ...type.footnote, color: palette.text, fontWeight: '700', textAlign: 'right', flexShrink: 1, fontFamily: fontStack } as never,
+  trow: { flexDirection: 'row', gap: 10 },
+  stepCol: { alignItems: 'center', width: 24 },
+  stepDot: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: palette.tintSoft,
+    borderWidth: 1,
+    borderColor: palette.tintBorder,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepNum: { fontSize: 10, fontWeight: '700', color: palette.tint, fontFamily: fontStack },
+  stepLine: { width: 1.5, flex: 1, minHeight: 18, backgroundColor: palette.border, marginVertical: 3 },
+  stepText: { ...type.footnote, color: palette.text, fontFamily: fontStack, paddingTop: 3, paddingBottom: 12, flex: 1 } as never,
+  barHead: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
+  barLabel: { ...type.caption1, color: palette.text2, fontFamily: fontStack } as never,
+  barValue: { ...type.caption1, color: palette.text, fontWeight: '700', fontFamily: fontStack } as never,
+  track: { height: 8, backgroundColor: palette.bgAlt, borderRadius: radius.pill, overflow: 'hidden' },
+  fill: { height: 8, backgroundColor: palette.tint, borderRadius: radius.pill },
 });

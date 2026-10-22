@@ -1,42 +1,28 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable, Modal, ScrollView, useWindowDimensions } from 'react-native';
-import { useAppleTheme, type, radius, minTouch, fontStack } from '../theme/tokens';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Icon } from './Icon';
+import { fontStack, palette, radius, type } from '../theme/tokens';
 
-/**
- * HIG sheet: bottom sheet on compact, centered card on regular width.
- * Grabber handle, 16pt top corners, 44pt dismiss control, scrim dismiss.
- */
+/** Detail sheet: bottom sheet on compact, focused dialog on wide screens. */
 export function DetailDrawer({ visible, title, onClose, children }: { visible: boolean; title: string; onClose: () => void; children: React.ReactNode }) {
-  const { palette } = useAppleTheme();
   const { width } = useWindowDimensions();
   if (!visible) return null;
   const regular = width >= 700;
   return (
-    <Modal visible transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.back} onPress={onClose} accessibilityLabel="Dismiss">
         <Pressable
           onPress={(e) => (e as unknown as { stopPropagation: () => void }).stopPropagation?.()}
-          style={[
-            styles.card,
-            regular ? styles.regular : styles.compact,
-            { backgroundColor: palette.card },
-            styles.lightShadow,
-          ]}
+          style={[styles.card, regular ? styles.regular : styles.compact]}
         >
-          {!regular ? <View style={[styles.grabber, { backgroundColor: palette.separator }]} /> : null}
+          {!regular ? <View style={styles.grabber} /> : null}
           <View style={styles.head}>
-            <Text style={[styles.title, { color: palette.text }]} accessibilityRole="header">{title}</Text>
-            <Pressable
-              onPress={onClose}
-              style={[styles.x, { backgroundColor: palette.filled }]}
-              accessibilityRole="button"
-              accessibilityLabel="Close"
-              hitSlop={8}
-            >
-              <Text style={[styles.xT, { color: palette.text2 }]}>✕</Text>
+            <Text style={styles.title} accessibilityRole="header">{title}</Text>
+            <Pressable onPress={onClose} style={styles.x} accessibilityRole="button" accessibilityLabel="Close" hitSlop={8}>
+              <Icon name="x" size={16} color={palette.text2} strokeWidth={2.2} />
             </Pressable>
           </View>
-          <ScrollView contentContainerStyle={styles.content}>{children}</ScrollView>
+          <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>{children}</ScrollView>
         </Pressable>
       </Pressable>
     </Modal>
@@ -44,30 +30,25 @@ export function DetailDrawer({ visible, title, onClose, children }: { visible: b
 }
 
 export function KeyVal({ k, v }: { k: string; v: string }) {
-  const { palette } = useAppleTheme();
   return (
-    <View style={[styles.kv, { borderBottomColor: palette.separator }]}>
-      <Text style={[styles.k, { color: palette.text2 }]}>{k}</Text>
-      <Text style={[styles.v, { color: palette.text }]}>{v}</Text>
+    <View style={styles.kv}>
+      <Text style={styles.k}>{k}</Text>
+      <Text style={styles.v}>{v}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  back: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end', alignItems: 'center' },
-  card: { paddingHorizontal: 20, paddingBottom: 24, paddingTop: 8, width: '100%' },
-  regular: { maxWidth: 480, borderRadius: radius.sheet, alignSelf: 'center', marginVertical: 40, maxHeight: '85%' },
-  compact: { borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, maxHeight: '88%' },
-  lightShadow: {
-    shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 24, shadowOffset: { width: 0, height: -4 }, elevation: 8,
-  } as never,
-  grabber: { width: 36, height: 5, borderRadius: 2.5, alignSelf: 'center', marginBottom: 8, marginTop: 4 },
-  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  title: { ...type.title3, fontFamily: fontStack as never } as never,
-  x: { width: minTouch - 14, height: minTouch - 14, borderRadius: (minTouch - 14) / 2, alignItems: 'center', justifyContent: 'center' },
-  xT: { fontSize: 14, fontWeight: '600' },
+  back: { flex: 1, backgroundColor: palette.overlay, justifyContent: 'flex-end', alignItems: 'center' },
+  card: { backgroundColor: palette.card, paddingHorizontal: 22, paddingBottom: 24, paddingTop: 10, width: '100%' },
+  regular: { maxWidth: 520, borderRadius: radius.sheet, alignSelf: 'center', marginVertical: 40, maxHeight: '86%' },
+  compact: { borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, maxHeight: '90%' },
+  grabber: { width: 38, height: 4, borderRadius: 2, alignSelf: 'center', backgroundColor: palette.borderStrong, marginBottom: 10, marginTop: 2 },
+  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, gap: 12 },
+  title: { ...type.title3, color: palette.text, fontFamily: fontStack, flex: 1 } as never,
+  x: { width: 32, height: 32, borderRadius: 16, backgroundColor: palette.filled, alignItems: 'center', justifyContent: 'center' },
   content: { paddingBottom: 8 },
-  kv: { flexDirection: 'row', justifyContent: 'space-between', gap: 12, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth },
-  k: { ...type.subhead, fontFamily: fontStack as never } as never,
-  v: { ...type.subhead, fontWeight: '600', textAlign: 'right', flex: 1, fontFamily: fontStack as never } as never,
+  kv: { flexDirection: 'row', justifyContent: 'space-between', gap: 16, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: palette.separator },
+  k: { ...type.footnote, color: palette.text2, fontFamily: fontStack, flexShrink: 0 } as never,
+  v: { ...type.footnote, fontWeight: '600', color: palette.text, textAlign: 'right', flex: 1, fontFamily: fontStack } as never,
 });

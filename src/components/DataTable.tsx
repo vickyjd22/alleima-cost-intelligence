@@ -1,80 +1,123 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useAppleTheme, type, radius, fontStack } from '../theme/tokens';
+import React, { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { EmptyState } from './ui';
+import { fontStack, palette, radius, shadowCard, type } from '../theme/tokens';
 
 export interface Column<T> {
   key: string;
   header: string;
   render: (row: T) => React.ReactNode;
   width?: number;
+  align?: 'left' | 'right';
 }
 
 /**
- * HIG inset-grouped table: caption-2 section headers, hairline separators,
- * 44pt rows, horizontal scroll only on narrow screens. Empty state uses a
- * glyph + headline + footnote (never a bare blank card).
+ * Inset data table: quiet header, hairline separators, generous row height and
+ * a real empty state. Horizontal scrolling is contained so the page never
+ * breaks on compact screens.
  */
 export function DataTable<T extends { id?: string }>({
   columns,
   rows,
-  emptyText = 'No records.',
+  emptyText = 'Nothing here yet',
   emptyHint,
+  onRowPress,
 }: {
   columns: Column<T>[];
   rows: T[];
   emptyText?: string;
   emptyHint?: string;
+  onRowPress?: (row: T) => void;
 }) {
-  const { palette } = useAppleTheme();
+  const [hovered, setHovered] = useState<string | null>(null);
+
   if (rows.length === 0) {
     return (
-      <View style={[styles.empty, { backgroundColor: palette.card, borderColor: palette.separator }]}>
-        <Text style={[styles.emptyGlyph, { color: palette.text3 }]}>▦</Text>
-        <Text style={[styles.emptyTitle, { color: palette.text }]}>{emptyText}</Text>
-        {emptyHint ? <Text style={[styles.emptyHint, { color: palette.text2 }]}>{emptyHint}</Text> : null}
+      <View style={styles.emptyCard}>
+        <EmptyState icon="fileSearch" title={emptyText} description={emptyHint} />
       </View>
     );
   }
+
   return (
-    <ScrollView horizontal style={[styles.card, { backgroundColor: palette.card, borderColor: palette.separator }]}>
-      <View>
-        <View style={[styles.headRow, { borderBottomColor: palette.separator, backgroundColor: palette.filled }]}>
-          {columns.map((c) => (
-            <Text key={c.key} style={[styles.head, { width: c.width ?? 140, color: palette.text2 }]}>
-              {c.header.toUpperCase()}
-            </Text>
-          ))}
-        </View>
-        {rows.map((r, i) => (
-          <View
-            key={r.id ?? String(i)}
-            style={[styles.row, i < rows.length - 1 ? { borderBottomColor: palette.separator, borderBottomWidth: StyleSheet.hairlineWidth } : null]}
-          >
+    <View style={styles.card}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View>
+          <View style={styles.headRow}>
             {columns.map((c) => (
-              <View key={c.key} style={{ width: c.width ?? 140, paddingRight: 8 }}>
-                {c.render(r)}
+              <View key={c.key} style={{ width: c.width ?? 150, paddingRight: 10, alignItems: c.align === 'right' ? 'flex-end' : 'flex-start' }}>
+                <Text style={styles.head} numberOfLines={1}>{c.header.toUpperCase()}</Text>
               </View>
             ))}
           </View>
-        ))}
-      </View>
-    </ScrollView>
+          {rows.map((r, i) => {
+            const key = r.id ?? String(i);
+            return (
+              <Pressable
+                key={key}
+                onPress={onRowPress ? () => onRowPress(r) : undefined}
+                onHoverIn={() => setHovered(key)}
+                onHoverOut={() => setHovered((h) => (h === key ? null : h))}
+                style={[
+                  styles.row,
+                  i < rows.length - 1 && styles.rowBorder,
+                  hovered === key && { backgroundColor: palette.cardMuted },
+                  onRowPress ? ({ cursor: 'pointer' } as never) : null,
+                ]}
+              >
+                {columns.map((c) => (
+                  <View
+                    key={c.key}
+                    style={{
+                      width: c.width ?? 150,
+                      paddingRight: 10,
+                      alignItems: c.align === 'right' ? 'flex-end' : 'flex-start',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {c.render(r)}
+                  </View>
+                ))}
+              </Pressable>
+            );
+          })}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radius.group, borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
-  headRow: { flexDirection: 'row', paddingHorizontal: 12, paddingVertical: 8 },
-  head: { ...type.caption2, letterSpacing: 0.4, fontFamily: fontStack as never } as never,
-  row: { flexDirection: 'row', paddingHorizontal: 12, paddingVertical: 12, minHeight: 44, alignItems: 'center' },
-  empty: {
-    padding: 32,
-    borderRadius: radius.group,
-    borderWidth: StyleSheet.hairlineWidth,
-    alignItems: 'center',
-    gap: 6,
+  card: {
+    backgroundColor: palette.card,
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: palette.border,
+    overflow: 'hidden',
+    ...shadowCard,
+  } as never,
+  headRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 11,
+    backgroundColor: palette.cardMuted,
+    borderBottomWidth: 1,
+    borderBottomColor: palette.border,
   },
-  emptyGlyph: { fontSize: 32 },
-  emptyTitle: { ...type.headline, fontFamily: fontStack as never } as never,
-  emptyHint: { ...type.footnote, textAlign: 'center', fontFamily: fontStack as never } as never,
+  head: { ...type.caption2, letterSpacing: 0.7, color: palette.text3, fontFamily: fontStack } as never,
+  row: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    minHeight: 52,
+    alignItems: 'center',
+    backgroundColor: palette.card,
+  },
+  rowBorder: { borderBottomWidth: 1, borderBottomColor: palette.separator },
+  emptyCard: {
+    backgroundColor: palette.card,
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: palette.border,
+  },
 });

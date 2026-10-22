@@ -16,8 +16,10 @@ import { audit } from '../../src/lib/audit';
 import { demoDb } from '../../src/mocks/demo';
 import { KNOWN_PCS } from '../../src/data/sample';
 import { ABNORMAL_ITEMS } from '../../src/mocks/manual';
+import { Card } from '../../src/components/ui';
+import { Icon } from '../../src/components/Icon';
 import { useSession } from '../../src/store/session';
-import { tokens } from '../../src/theme/tokens';
+import { fontStack, palette, type } from '../../src/theme/tokens';
 
 type Row = SopicRow & { id: string };
 
@@ -61,7 +63,7 @@ export default function Finance() {
         <Skeleton lines={5} />
       ) : (
         <View>
-          <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+          <View style={{ flexDirection: 'row', marginBottom: 4 }}>
             <ExportButton filename="annexG-rec-sample.csv" headers={['layer', 'source', 'outcome']} rows={LAYERS.map(([l, s, o]) => [l, s, o])} />
           </View>
           <Text style={styles.h}>Six-layer SOPIC bridge (§18.4, Annex G)</Text>
@@ -89,11 +91,30 @@ export default function Finance() {
           <Text style={styles.h}>Abnormal / non-cost bridge items (§17.5 — never in normal cost)</Text>
           <DataTable columns={[{ key: 'i', header: 'Item', width: 220, render: (r) => <Text>{r.item}</Text> }, { key: 't', header: 'Treatment', width: 380, render: (r) => <Text>{r.tr}</Text> }]} rows={ABNORMAL_ITEMS.map(([item, tr], i) => ({ id: `n${i}`, item, tr }))} />
           <Text style={styles.h}>Close checklist D+1..D+12 + Annex B evidence</Text>
-          {CLOSE_STEPS.map((s) => (
-            <Pressable key={s.day} onPress={() => setDone({ ...done, [s.day]: !done[s.day] })}>
-              <Text style={styles.step}>[{done[s.day] ? 'x' : ' '}] {s.day} — {s.activity} ({s.owner}) → {s.output}</Text>
-            </Pressable>
-          ))}
+          <Card padded={false} style={{ marginTop: 10 }}>
+            {CLOSE_STEPS.map((s, i) => {
+              const on = !!done[s.day];
+              return (
+                <Pressable
+                  key={s.day}
+                  onPress={() => setDone({ ...done, [s.day]: !done[s.day] })}
+                  style={[styles.closeRow, i < CLOSE_STEPS.length - 1 && { borderBottomWidth: 1, borderBottomColor: palette.separator }]}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: on }}
+                  accessibilityLabel={`${s.day}: ${s.activity}`}
+                >
+                  <View style={[styles.checkbox, on && { backgroundColor: palette.success, borderColor: palette.success }]}>
+                    {on ? <Icon name="check" size={12} color="#fff" strokeWidth={3} /> : null}
+                  </View>
+                  <View style={{ flex: 1, minWidth: 0 }}>
+                    <Text style={styles.step}>{s.day} — {s.activity}</Text>
+                    <Text style={styles.stepSub}>{s.owner} → {s.output}</Text>
+                  </View>
+                  <StatusChip label={on ? 'done' : 'open'} tone={on ? 'ok' : 'neutral'} />
+                </Pressable>
+              );
+            })}
+          </Card>
         </View>
       )}
       <DetailDrawer visible={exc !== null} title={`Exception ${exc?.invoiceNo ?? ''}`} onClose={() => setExc(null)}>
@@ -109,7 +130,10 @@ export default function Finance() {
 }
 
 const styles = StyleSheet.create({
-  h: { fontWeight: '700', color: tokens.color.text, marginTop: 16, marginBottom: 8 },
-  step: { fontSize: 13, color: tokens.color.text, paddingVertical: 4 },
-  link: { color: tokens.color.primary, fontWeight: '700' },
+  h: { ...type.headline, color: palette.text, marginTop: 20, marginBottom: 10, fontFamily: fontStack } as never,
+  step: { ...type.footnote, color: palette.text, fontWeight: '600', fontFamily: fontStack } as never,
+  stepSub: { ...type.caption1, color: palette.text3, marginTop: 2, fontFamily: fontStack } as never,
+  link: { color: palette.tint, fontWeight: '700', fontFamily: fontStack },
+  closeRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, paddingVertical: 10 },
+  checkbox: { width: 20, height: 20, borderRadius: 6, borderWidth: 1, borderColor: palette.borderStrong, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.card },
 });

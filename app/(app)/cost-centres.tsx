@@ -11,6 +11,8 @@ import { FormField, PrimaryButton } from '../../src/components/FormField';
 import { Skeleton, useMockLoading } from '../../src/components/Skeleton';
 import { ExportButton } from '../../src/components/ExportButton';
 import { useToast } from '../../src/components/Toast';
+import { Button, Callout } from '../../src/components/ui';
+import { palette } from '../../src/theme/tokens';
 import { useSession } from '../../src/store/session';
 import { costCentreSchema } from '../../src/lib/validation';
 import { audit } from '../../src/lib/audit';
@@ -64,14 +66,14 @@ export default function CostCentres() {
             {counts.map((c) => (
               <StatusChip key={c.t} label={`${c.t} ${c.n}`} tone={TONE[c.t]} />
             ))}
-            <Pressable onPress={() => setShowExc(!showExc)}><Text style={{ color: '#DC2626', fontWeight: '700' }}>{showExc ? 'Hide' : 'Show'} {CC_EXCEPTIONS.length} master-data exceptions (§4.1/§4.5)</Text></Pressable>
+            <Button label={`${showExc ? 'Hide' : 'Show'} ${CC_EXCEPTIONS.length} master-data exceptions`} size="sm" variant="ghost" icon="triangleAlert" onPress={() => setShowExc(!showExc)} />
           </View>
           {showExc ? (
             <DataTable columns={[{ key: 'c', header: 'Code', render: (r) => <Text>{r.code}</Text> }, { key: 'i', header: 'Exception — reconcile before manual is effective', width: 420, render: (r) => <Text>{r.issue}</Text> }]} rows={CC_EXCEPTIONS.map((e) => ({ ...e, id: e.code }))} />
           ) : null}
           <View style={{ flexDirection: 'row', gap: 8, marginVertical: 12, flexWrap: 'wrap' }}>
             {TYPES.map((t) => (
-              <Pressable key={t} onPress={() => setType(t)}>
+              <Pressable key={t} onPress={() => setType(t)} accessibilityRole="button" accessibilityState={{ selected: type === t }} accessibilityLabel={`Filter ${t}`} style={{ cursor: 'pointer' } as never}>
                 <StatusChip label={t} tone={type === t ? 'info' : 'neutral'} />
               </Pressable>
             ))}
@@ -79,8 +81,8 @@ export default function CostCentres() {
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
             <SearchField value={q} onChange={setQ} placeholder="Search 127 codes…" />
             <ExportButton filename="cc-master-127-sample.csv" headers={['code', 'desc', 'dept', 'type', 'driver']} rows={rows.map((r) => [r.code, r.desc, r.dept, r.type, r.driver])} />
-            <Pressable onPress={() => setShowNew(true)}><Text style={{ color: '#4F46E5', fontWeight: '700' }}>+ New (§4.6)</Text></Pressable>
-            <Pressable onPress={() => router.push('/(app)/imports' as never)}><Text style={{ color: '#4F46E5', fontWeight: '700' }}>Import →</Text></Pressable>
+            <Button label="New cost centre" size="sm" icon="plus" onPress={() => setShowNew(true)} />
+            <Button label="Import" size="sm" variant="secondary" icon="upload" onPress={() => router.push('/(app)/imports' as never)} />
           </View>
           <DataTable
             columns={[
@@ -89,13 +91,15 @@ export default function CostCentres() {
               { key: 'dept', header: 'Dept / Flow', render: (r) => <Text>{r.dept}</Text> },
               { key: 'type', header: 'Type', render: (r) => <StatusChip label={r.type} tone={TONE[r.type]} /> },
               { key: 'driver', header: 'Driver', render: (r) => <Text>{r.driver}</Text> },
-              { key: 'open', header: '', render: (r) => <Pressable onPress={() => setDetail(r)}><Text style={{ color: '#4F46E5', fontWeight: '700' }}>Open</Text></Pressable> },
+              { key: 'open', header: '', render: (r) => <Pressable onPress={() => setDetail(r)}><Text style={{ color: palette.tint, fontWeight: '700' }}>Open</Text></Pressable> },
             ]}
             rows={rows}
           />
-          <Text style={{ color: '#667085', fontSize: 12, marginTop: 8 }}>
-            §4.5 initial treatment by department: {CC_DEPT_SUMMARY.slice(0, 7).map((d) => `${d[0]} ${d[1]}`).join(' · ')} — full table in export. Reporting codes never enter product cost without policy approval.
-          </Text>
+          <View style={{ marginTop: 12 }}>
+            <Callout tone="neutral" compact>
+              §4.5 initial treatment by department: {CC_DEPT_SUMMARY.slice(0, 7).map((d) => `${d[0]} ${d[1]}`).join(' · ')} — full table in export. Reporting codes never enter product cost without policy approval.
+            </Callout>
+          </View>
         </View>
       )}
       <DetailDrawer visible={detail !== null} title={detail?.code ?? ''} onClose={() => setDetail(null)}>

@@ -8,10 +8,11 @@ import { DetailDrawer, KeyVal } from '../../src/components/DetailDrawer';
 import { TraceabilityTimeline } from '../../src/components/CostingPanels';
 import { Skeleton, useMockLoading } from '../../src/components/Skeleton';
 import { ExportButton } from '../../src/components/ExportButton';
+import { Tabs } from '../../src/components/ui';
 import { useSession } from '../../src/store/session';
 import { SAMPLE_PRODUCTS } from '../../src/data/sample';
 import { HF_ROUTE, CF_ROUTE, UB_ROUTE, MHR_POOL, CAPACITY, UTIL_KPIS, UTILITIES, CONSUMABLES, RATE_CARD } from '../../src/mocks/manual';
-import { tokens } from '../../src/theme/tokens';
+import { fontStack, palette, type } from '../../src/theme/tokens';
 
 const TABS = ['Products & BOM', 'Routes §5', 'Machines §9', 'Utilities §10', 'Consumables §11', 'Rate register'] as const;
 const BOM_VERSIONS = [
@@ -34,13 +35,7 @@ export default function Engineering() {
         sub="§5 routes · §7 BOM/routing/standards · §9 machines/capacity · §10 utilities · §11 consumables"
         right={<ExportButton filename="rate-card-annexC-sample.csv" headers={['cc', 'process', 'driver']} rows={RATE_CARD.map((r) => [r[0], r[1], r[2]])} />}
       />
-      <View style={styles.tabs}>
-        {TABS.map((t) => (
-          <Pressable key={t} onPress={() => setTab(t)} style={[styles.tab, tab === t ? styles.on : null]}>
-            <Text style={[styles.tabT, tab === t ? styles.onT : null]}>{t}</Text>
-          </Pressable>
-        ))}
-      </View>
+      <Tabs tabs={TABS} value={tab} onChange={(t) => setTab(t as (typeof TABS)[number])} style={{ marginBottom: 14 }} />
       {loading ? (
         <Skeleton lines={5} />
       ) : (
@@ -108,13 +103,8 @@ export default function Engineering() {
 }
 
 const styles = StyleSheet.create({
-  tabs: { flexDirection: 'row', gap: 6, flexWrap: 'wrap', marginBottom: 12 },
-  tab: { borderWidth: 1, borderColor: tokens.color.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#fff' },
-  on: { backgroundColor: tokens.color.primary, borderColor: tokens.color.primary },
-  tabT: { fontSize: 12, fontWeight: '700', color: tokens.color.text2 },
-  onT: { color: '#fff' },
-  h: { fontWeight: '700', color: tokens.color.text, marginTop: 16, marginBottom: 8 },
-  li: { fontSize: 13, color: tokens.color.text, paddingVertical: 2 },
-  link: { color: tokens.color.primary, fontWeight: '700' },
-  note: { color: tokens.color.text2, fontSize: 12, marginTop: 8 },
+  h: { ...type.headline, color: palette.text, marginTop: 20, marginBottom: 10, fontFamily: fontStack } as never,
+  li: { ...type.footnote, color: palette.text, paddingVertical: 3, fontFamily: fontStack } as never,
+  link: { color: palette.tint, fontWeight: '700', fontFamily: fontStack },
+  note: { ...type.caption1, color: palette.text2, marginTop: 10, lineHeight: 18, fontFamily: fontStack } as never,
 });

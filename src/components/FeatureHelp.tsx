@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useAppleTheme, type, radius, minTouch, fontStack } from '../theme/tokens';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Icon } from './Icon';
+import { fontStack, minTouch, palette, radius, type } from '../theme/tokens';
 
 export interface FeatureHelpProps {
   purpose: string; who: string; inputs: string; process: string; outputs: string;
@@ -8,9 +9,8 @@ export interface FeatureHelpProps {
   measurement: string; limitations: string;
 }
 
-/** HIG disclosure group: 44pt tappable header, grouped card, caption eyebrows. */
+/** Expandable "why this exists" guide for client walkthroughs. */
 export function FeatureHelp(p: FeatureHelpProps) {
-  const { palette } = useAppleTheme();
   const [open, setOpen] = useState(false);
   const rows: [string, string][] = [
     ['Purpose', p.purpose], ['Who uses it', p.who], ['Inputs', p.inputs],
@@ -19,7 +19,7 @@ export function FeatureHelp(p: FeatureHelpProps) {
     ['Intended benefit', p.benefit], ['How to measure', p.measurement], ['Limitations', p.limitations],
   ];
   return (
-    <View style={[styles.card, { backgroundColor: palette.card, borderColor: palette.separator }]}>
+    <View style={styles.card}>
       <Pressable
         onPress={() => setOpen((o) => !o)}
         accessibilityRole="button"
@@ -27,23 +27,24 @@ export function FeatureHelp(p: FeatureHelpProps) {
         accessibilityState={{ expanded: open }}
         style={styles.head}
       >
-        <Text style={[styles.glyph, { color: palette.tint }]}>ⓘ</Text>
-        <Text style={[styles.title, { color: palette.tint }]}>
-          Why this feature exists — business guide
-        </Text>
-        <Text style={[styles.chev, { color: palette.text2 }]}>{open ? '▾' : '▸'}</Text>
+        <View style={styles.icon}>
+          <Icon name="book" size={16} color={palette.tint} strokeWidth={1.9} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.title}>Why this feature exists</Text>
+          <Text style={styles.sub}>Business context, controls and limitations</Text>
+        </View>
+        <Icon name={open ? 'chevronDown' : 'chevronRight'} size={16} color={palette.text3} />
       </Pressable>
       {open ? (
-        <View style={[styles.body, { borderTopColor: palette.separator }]}>
+        <View style={styles.body}>
           {rows.map(([k, v]) => (
             <View key={k} style={styles.row}>
-              <Text style={[styles.k, { color: palette.text2 }]}>{k.toUpperCase()}</Text>
-              <Text style={[styles.v, { color: palette.text }]}>{v}</Text>
+              <Text style={styles.k}>{k.toUpperCase()}</Text>
+              <Text style={styles.v}>{v}</Text>
             </View>
           ))}
-          <Text style={[styles.demo, { color: palette.text2 }]}>
-            All figures on this screen are illustrative SAMPLE data, not approved corporate metrics.
-          </Text>
+          <Text style={styles.demo}>All figures on this screen are illustrative SAMPLE data, not approved corporate metrics.</Text>
         </View>
       ) : null}
     </View>
@@ -51,14 +52,14 @@ export function FeatureHelp(p: FeatureHelpProps) {
 }
 
 const styles = StyleSheet.create({
-  card: { borderWidth: StyleSheet.hairlineWidth, borderRadius: radius.card, marginBottom: 12, overflow: 'hidden' },
-  head: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: minTouch, paddingHorizontal: 12 },
-  glyph: { fontSize: 17 },
-  title: { ...type.callout, fontWeight: '600', flex: 1, fontFamily: fontStack as never } as never,
-  chev: { fontSize: 14 },
-  body: { paddingHorizontal: 12, paddingBottom: 12, paddingTop: 8, gap: 10, borderTopWidth: StyleSheet.hairlineWidth },
+  card: { borderWidth: 1, borderColor: palette.border, borderRadius: radius.card, marginBottom: 14, overflow: 'hidden', backgroundColor: palette.card },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: minTouch, paddingHorizontal: 14, paddingVertical: 6 },
+  icon: { width: 30, height: 30, borderRadius: 9, backgroundColor: palette.tintSoft, alignItems: 'center', justifyContent: 'center' },
+  title: { ...type.footnote, fontWeight: '700', color: palette.text, fontFamily: fontStack } as never,
+  sub: { ...type.caption1, color: palette.text3, fontFamily: fontStack, marginTop: 1 } as never,
+  body: { paddingHorizontal: 14, paddingBottom: 14, paddingTop: 12, gap: 10, borderTopWidth: 1, borderTopColor: palette.separator },
   row: { gap: 2 },
-  k: { ...type.caption2, letterSpacing: 0.4, fontFamily: fontStack as never } as never,
-  v: { ...type.subhead, fontFamily: fontStack as never } as never,
-  demo: { ...type.caption1, fontStyle: 'italic', marginTop: 4, fontFamily: fontStack as never } as never,
+  k: { ...type.caption2, color: palette.text3, fontFamily: fontStack } as never,
+  v: { ...type.footnote, color: palette.text, fontFamily: fontStack } as never,
+  demo: { ...type.caption1, color: palette.text3, fontStyle: 'italic', marginTop: 2, fontFamily: fontStack } as never,
 });
