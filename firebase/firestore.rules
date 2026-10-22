@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function signedIn() { return request.auth != null; }
+    function hasRole(r) { return signedIn() && r in request.auth.token.roles; }
+    function plantOk(plantId) { return signedIn() && plantId in request.auth.token.plantIds; }
+
+    // Default deny; grants below. Writes to ledger/approvals/periods/costRuns via Functions only.
+    match /tenants/{t}/companies/{c}/plants/{p}/{doc=**} {
+      allow read: if plantOk(p);
+      allow write: if false;
+    }
+    match /tenants/{t}/users/{u} {
+      allow read: if signedIn();
+      allow write: if hasRole('platformAdmin') || hasRole('clientAdmin');
+    }
+    match /auditLogs/{d} {
+      allow read: if hasRole('auditor') || hasRole('finance') || hasRole('management') || hasRole('clientAdmin');
+      allow write: if false;
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Alleima Cost Intelligence",
+    "slug": "alleima-cost-intelligence",
+    "version": "0.1.0",
+    "orientation": "default",
+    "scheme": "alleima-cost",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#4F46E5"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#4F46E5"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-asset",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
