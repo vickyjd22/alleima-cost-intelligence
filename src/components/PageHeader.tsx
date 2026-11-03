@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { fontStack, palette, type } from '../theme/tokens';
+import { displayFontStack, fontStack, palette, type } from '../theme/tokens';
 
 /**
  * Page header: an eyebrow for context, a confident title, a plain-language
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   },
   textWrap: { flex: 1, minWidth: 240, gap: 5 },
   eyebrow: { ...type.caption2, color: palette.tint, fontFamily: fontStack, letterSpacing: 0.9 } as never,
-  title: { fontFamily: fontStack, color: palette.text, letterSpacing: -0.7 } as never,
+  title: { fontFamily: displayFontStack, color: palette.text, letterSpacing: -0.7 } as never,
   large: { ...type.title1 } as never,
   compact: { ...type.title2 } as never,
   sub: { ...type.body, color: palette.text2, fontFamily: fontStack, maxWidth: 820 } as never,

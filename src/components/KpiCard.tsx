@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Icon, type IconName } from './Icon';
 import { DeltaPill, SparkBars } from './ui';
-import { fontStack, palette, radius, shadowCard, type } from '../theme/tokens';
+import { displayFontStack, fontStack, palette, radius, shadowCard, type } from '../theme/tokens';
 
 /**
  * KPI card: a single number with just enough context to act on. The icon
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   title: { ...type.footnote, color: palette.text2, fontWeight: '600', flex: 1, fontFamily: fontStack } as never,
   statusDot: { width: 7, height: 7, borderRadius: 4 },
   valueRow: { flexDirection: 'row', alignItems: 'baseline' },
-  value: { ...type.title1, color: palette.text, fontVariant: ['tabular-nums'], fontFamily: fontStack } as never,
+  value: { ...type.title1, color: palette.text, fontVariant: ['tabular-nums'], letterSpacing: -0.5, fontFamily: displayFontStack } as never,
   unit: { ...type.subhead, fontWeight: '500', color: palette.text3 } as never,
   bottom: { flexDirection: 'row', alignItems: 'flex-end', gap: 10 },
   hint: { ...type.caption1, color: palette.text2, fontFamily: fontStack } as never,

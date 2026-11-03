@@ -84,7 +84,7 @@ export function SignInForm({ onSubmit, loading }: { onSubmit: (email: string, pa
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: palette.card, borderRadius: radius.sheet, padding: 26, borderWidth: 1, borderColor: palette.border, width: '100%', maxWidth: 420, shadowColor: '#0A1B33', shadowOpacity: 0.08, shadowRadius: 24, shadowOffset: { width: 0, height: 12 } } as never,
+  card: { backgroundColor: palette.card, borderRadius: radius.sheet, padding: 26, borderWidth: 1, borderColor: palette.border, width: '100%', maxWidth: 420, shadowColor: palette.sidebar, shadowOpacity: 0.08, shadowRadius: 24, shadowOffset: { width: 0, height: 12 } } as never,
   title: { ...type.title2, color: palette.text, fontFamily: fontStack } as never,
   sub: { ...type.footnote, color: palette.text2, marginTop: 6, marginBottom: 18, fontFamily: fontStack } as never,
   label: { ...type.footnote, fontWeight: '600', color: palette.text, marginTop: 12, marginBottom: 6, fontFamily: fontStack } as never,

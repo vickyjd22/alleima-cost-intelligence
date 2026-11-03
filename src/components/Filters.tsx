@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSession } from '../store/session';
 import { Icon } from './Icon';
-import { fontStack, minTouch, palette, radius, type } from '../theme/tokens';
+import { focus, fontStack, minTouch, palette, radius, type } from '../theme/tokens';
 
 const PERIODS = ['202607', '202608', '202609', '202610'];
 
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   opt: { minHeight: 32, minWidth: minTouch, paddingHorizontal: 10, borderRadius: 7, alignItems: 'center', justifyContent: 'center' },
   optOn: {
     backgroundColor: palette.card,
-    shadowColor: '#0A1B33',
+    shadowColor: palette.sidebar,
     shadowOpacity: 0.08,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: palette.border,
   },
-  fieldFocus: { borderColor: palette.tint, shadowColor: palette.tint, shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } } as never,
+  fieldFocus: { borderColor: palette.tint, outlineStyle: 'solid', outlineColor: focus.ring, outlineWidth: focus.width, outlineOffset: focus.offset } as never,
   input: { flex: 1, fontSize: 14, paddingVertical: 6, color: palette.text, fontFamily: fontStack, outlineStyle: 'none' } as never,
   clear: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.filled },
 });

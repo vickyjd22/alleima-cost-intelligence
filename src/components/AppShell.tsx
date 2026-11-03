@@ -24,6 +24,10 @@ import { BottomNav } from './BottomNav';
 import { ToastHost } from './Toast';
 import { Icon, ModuleIcon } from './Icon';
 import { Avatar, BrandMark, IconButton } from './ui';
+import { PermissionDenied } from './PermissionDenied';
+
+/** Routes that are always reachable regardless of role. */
+const ALWAYS_ALLOWED = ['overview', 'profile'];
 
 const PERIODS = ['202607', '202608', '202609', '202610'];
 const PERIOD_LABEL: Record<string, string> = {
@@ -52,6 +56,13 @@ export function AppShell({ roles, children }: { roles: Role[]; children: React.R
   const visible = modulesForRoles(roles);
 
   const activeModule = visible.find((m) => pathname.includes(m.id));
+  // Permission guard: a route that maps to a real module the current role
+  // cannot see renders a denied state instead of the screen body.
+  const routeModule = modules.find((m) => pathname.includes(m.id));
+  const denied =
+    !!routeModule &&
+    !ALWAYS_ALLOWED.includes(routeModule.id) &&
+    !visible.some((m) => m.id === routeModule.id);
   const q = query.trim().toLowerCase();
   const matches = q ? modules.filter((m) => m.title.toLowerCase().includes(q) || m.short.toLowerCase().includes(q)).slice(0, 7) : [];
 
@@ -155,7 +166,7 @@ export function AppShell({ roles, children }: { roles: Role[]; children: React.R
                 accessibilityLabel="Go to Overview"
                 style={[styles.brandBtn, collapsed && { paddingHorizontal: 0 }]}
               >
-                <BrandMark size={36} showWordmark={!collapsed} />
+                <BrandMark size={36} showWordmark={!collapsed} onDark />
               </Pressable>
             </View>
 
@@ -316,7 +327,9 @@ export function AppShell({ roles, children }: { roles: Role[]; children: React.R
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            <View style={styles.contentInner}>{children}</View>
+            <View style={styles.contentInner}>
+              {denied ? <PermissionDenied moduleTitle={routeModule?.title} /> : children}
+            </View>
           </ScrollView>
         </View>
       </View>
@@ -377,10 +390,10 @@ const styles = StyleSheet.create({
   } as never,
   navItemCollapsed: { justifyContent: 'center', paddingHorizontal: 0, minHeight: 42, marginBottom: 4 },
   navItemActive: { backgroundColor: palette.sidebarActive, borderWidth: 1, borderColor: palette.sidebarActiveBorder },
-  navAccent: { position: 'absolute', left: -1, top: 9, bottom: 9, width: 3, borderRadius: 2, backgroundColor: '#60A5FA' },
+  navAccent: { position: 'absolute', left: -1, top: 9, bottom: 9, width: 3, borderRadius: 2, backgroundColor: palette.tint },
   navLabel: { ...type.subhead, color: palette.sidebarMuted, fontFamily: fontStack, flex: 1, fontWeight: '500' } as never,
   navLabelActive: { color: '#FFFFFF', fontWeight: '600' },
-  navDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: '#60A5FA' },
+  navDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: palette.tint },
   sidebarFooter: {
     borderTopWidth: 1,
     borderTopColor: palette.sidebarBorder,
@@ -464,7 +477,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: palette.border,
     padding: 6,
-    shadowColor: '#0A1B33',
+    shadowColor: palette.sidebar,
     shadowOpacity: 0.14,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 10 },
@@ -512,7 +525,7 @@ const styles = StyleSheet.create({
   periodLabelT: { ...type.caption1, color: palette.text2, fontWeight: '600', fontFamily: fontStack } as never,
   periodTrack: { flexDirection: 'row', backgroundColor: palette.bgAlt, borderRadius: 9, padding: 3, gap: 2 },
   periodOpt: { minWidth: 32, height: 28, paddingHorizontal: 7, borderRadius: 7, alignItems: 'center', justifyContent: 'center' },
-  periodOptOn: { backgroundColor: palette.card, shadowColor: '#0A1B33', shadowOpacity: 0.08, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 1 } as never,
+  periodOptOn: { backgroundColor: palette.card, shadowColor: palette.sidebar, shadowOpacity: 0.08, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 1 } as never,
   periodOptT: { fontSize: 11.5, fontWeight: '700', fontFamily: fontStack },
 
   headerMobileRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },

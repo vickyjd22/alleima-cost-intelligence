@@ -9,10 +9,10 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Svg, Circle } from 'react-native-svg';
+import { Svg, Circle, Path, G } from 'react-native-svg';
 import { Icon, type IconName } from './Icon';
 import {
+  focus,
   fontStack,
   minTouch,
   palette,
@@ -110,6 +110,7 @@ export function Button({
 }) {
   const [hover, setHover] = useState(false);
   const [pressed, setPressed] = useState(false);
+  const [focused, setFocused] = useState(false);
   const tone = BUTTON_TONES[variant];
   const dims = BUTTON_SIZES[size];
   return (
@@ -120,6 +121,8 @@ export function Button({
       onPressOut={() => setPressed(false)}
       onHoverIn={() => setHover(true)}
       onHoverOut={() => setHover(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ disabled: !!(disabled || loading) }}
@@ -129,6 +132,7 @@ export function Button({
         { backgroundColor: tone.bg, borderColor: tone.border, opacity: disabled ? 0.45 : 1 },
         hover && !disabled ? { backgroundColor: tone.hover, borderColor: tone.hoverBorder } : null,
         pressed && !disabled ? { transform: [{ translateY: 1 }] } : null,
+        focused && !disabled ? styles.focusRing : null,
         fullWidth ? { alignSelf: 'stretch' } : null,
         style,
       ]}
@@ -178,6 +182,7 @@ export function IconButton({
   iconSize?: number;
 }) {
   const [hover, setHover] = useState(false);
+  const [focused, setFocused] = useState(false);
   const bg = tone === 'inverse' ? 'rgba(255,255,255,0.10)' : tone === 'tint' ? palette.tintSoft : palette.filled;
   const fg = tone === 'inverse' ? palette.sidebarText : tone === 'tint' ? palette.tint : palette.text2;
   return (
@@ -185,12 +190,15 @@ export function IconButton({
       onPress={onPress}
       onHoverIn={() => setHover(true)}
       onHoverOut={() => setHover(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
       accessibilityRole="button"
       accessibilityLabel={label}
       style={[
         styles.iconBtn,
         { width: size, height: size, borderRadius: size / 2, backgroundColor: bg },
         hover ? { opacity: 0.8 } : null,
+        focused ? styles.focusRing : null,
       ]}
     >
       <Icon name={icon} size={iconSize} color={fg} strokeWidth={1.9} />
@@ -422,23 +430,51 @@ export function SparkBars({ values, tone = 'tint', height = 34 }: { values: numb
 
 /* --------------------------------------------------------------- Brand mark -- */
 
-export function BrandMark({ size = 36, showWordmark = true, subtitle }: { size?: number; showWordmark?: boolean; subtitle?: string }) {
+/**
+ * The Alleima logo glyph — two angular strokes (a forward-slash paired with an
+ * up-arrow stroke) in Molten Orange, rendered from the brand mark. Scales to
+ * any size and keeps the brand's sharp, industrial geometry.
+ */
+export function AlleimaGlyph({ size = 36, color = palette.tint }: { size?: number; color?: string }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-      <LinearGradient
-        colors={['#3B82F6', '#2563EB', '#0D9488']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{ width: size, height: size, borderRadius: size * 0.28, alignItems: 'center', justifyContent: 'center' }}
-      >
-        <Text style={{ color: '#fff', fontWeight: '800', fontSize: size * 0.46, fontFamily: fontStack, letterSpacing: -0.5 }}>A</Text>
-      </LinearGradient>
+    <Svg width={size} height={size} viewBox="0 0 100 100" accessibilityRole="image" aria-label="Alleima">
+      <G>
+        {/* Left leaning stroke */}
+        <Path d="M30 86 L52 14 L70 14 L48 86 Z" fill={color} />
+        {/* Right upward stroke forming the peak */}
+        <Path d="M56 14 L74 14 L86 54 L70 58 Z" fill={color} />
+      </G>
+    </Svg>
+  );
+}
+
+export function BrandMark({
+  size = 36,
+  showWordmark = true,
+  subtitle,
+  onDark,
+}: {
+  size?: number;
+  showWordmark?: boolean;
+  subtitle?: string;
+  onDark?: boolean;
+}) {
+  // Wordmark ink: near-black on light surfaces, light on the dark rail.
+  const wordColor = onDark ? palette.sidebarText : palette.text;
+  const subColor = onDark ? palette.sidebarMuted : palette.text3;
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: size * 0.26 }}>
+      <AlleimaGlyph size={size} />
       {showWordmark ? (
         <View>
-          <Text style={{ color: palette.sidebarText, fontSize: 15.5, fontWeight: '700', fontFamily: fontStack, letterSpacing: -0.2 }}>Alleima</Text>
-          <Text style={{ color: palette.sidebarMuted, fontSize: 10.5, fontWeight: '500', fontFamily: fontStack, letterSpacing: 0.5 }}>
-            {subtitle ?? 'COST INTELLIGENCE'}
+          <Text style={{ color: wordColor, fontSize: size * 0.56, fontWeight: '800', fontFamily: fontStack, letterSpacing: -0.6 }}>
+            Alleima
           </Text>
+          {subtitle !== '' ? (
+            <Text style={{ color: subColor, fontSize: size * 0.27, fontWeight: '600', fontFamily: fontStack, letterSpacing: 1.2 }}>
+              {subtitle ?? 'COST INTELLIGENCE'}
+            </Text>
+          ) : null}
         </View>
       ) : null}
     </View>
@@ -464,6 +500,7 @@ const styles = StyleSheet.create({
   sectionRight: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   btn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderWidth: 1, gap: 8 },
   btnLabel: { fontWeight: '600', fontFamily: fontStack, letterSpacing: -0.1 },
+  focusRing: { outlineStyle: 'solid', outlineColor: focus.ring, outlineWidth: focus.width, outlineOffset: focus.offset } as never,
   iconBtn: { alignItems: 'center', justifyContent: 'center' },
   tabsTrack: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: palette.bgAlt, borderRadius: radius.md, padding: 4 },
   tab: { minHeight: 34, paddingHorizontal: 14, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },

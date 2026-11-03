@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     paddingTop: 6,
     paddingBottom: 16,
     paddingHorizontal: 6,
-    shadowColor: '#0A1B33',
+    shadowColor: palette.sidebar,
     shadowOpacity: 0.06,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: -6 },

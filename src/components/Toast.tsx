@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     maxWidth: 560,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
-    shadowColor: '#0A1B33',
+    shadowColor: palette.sidebar,
     shadowOpacity: 0.25,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 8 },

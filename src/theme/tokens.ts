@@ -1,79 +1,98 @@
 /**
  * Alleima Cost Intelligence — production design system.
  *
- * Direction: calm, high-contrast "operator console" clarity for a finance and
- * manufacturing audience. A deep steel-navy navigation rail frames a bright,
- * airy canvas. One confident blue carries interaction; teal marks intelligence;
- * amber/red are reserved for cost, risk and exceptions.
+ * Direction: the OFFICIAL Alleima brand identity (Kurppa Hosk). Molten Orange
+ * (#FF5532) is the single confident accent — logo, interaction, links, active
+ * nav, chart highlights. Dark Steel (#0F232E) is the ink and the navigation
+ * rail. Iron Red (#872823) is the deep secondary. White canvas with a Titanium
+ * Grey (#E1E1E1) neutral family. Editorial, industrial, premium — thin orange
+ * rules, generous whitespace, near-black type with orange emphasis.
  *
- * The `appleLight`/`useAppleTheme` names are kept for backwards compatibility
- * with existing screens — values now map to the production palette below.
+ * Brand hex per the published Alleima identity: Molten Orange #FF5532,
+ * Dark Steel Blue #0F232E, Iron Red #872823, White, Titanium Grey #E1E1E1.
+ *
+ * IMPORTANT: token KEYS are a shared contract consumed across every screen and
+ * component. Re-toning changes VALUES only; keys are preserved so no consumer
+ * breaks. The `appleLight`/`useAppleTheme`/`tokens` names are kept for
+ * backwards compatibility with existing screens.
  */
 
+/**
+ * Typeface. Alleima's brand face is "Neurial Grotesk" (a commercial modern
+ * grotesque). We can't bundle the licensed font here, so we ship the closest
+ * freely-licensable grotesques — Manrope for UI/body and Space Grotesk for
+ * display headings — which echo Neurial's geometric, industrial character.
+ * To use the licensed font later, drop the files in and replace the first
+ * family name in each stack below; nothing else changes.
+ */
 export const fontStack =
-  "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+  "'Manrope', 'Neurial Grotesk', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
+export const displayFontStack =
+  "'Space Grotesk', 'Neurial Grotesk', 'Manrope', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
 export const monoStack =
   "'SFMono-Regular', ui-monospace, 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace";
 
 export const palette = {
-  /* Brand + interaction */
-  tint: '#2563EB',
-  tintPressed: '#1D4ED8',
-  tintSoft: '#EAF1FF',
-  tintBorder: '#C7D9FF',
-  accent: '#0D9488',
-  accentSoft: '#E6FBF7',
-  accentBorder: '#B6EFE7',
+  /* Brand + interaction — Molten Orange #FF5532 carries all interaction */
+  tint: '#FF5532',
+  tintPressed: '#E8431F',
+  tintSoft: '#FFEDE8',
+  tintBorder: '#FFCFC2',
+  accent: '#872823',
+  accentSoft: '#F6E7E5',
+  accentBorder: '#E6C3BF',
 
-  /* Surfaces */
-  bg: '#F4F6FA',
-  bgAlt: '#EDF1F7',
+  /* Surfaces — white canvas with a soft titanium-grey wash */
+  bg: '#F6F6F4',
+  bgAlt: '#EDEDEA',
   card: '#FFFFFF',
-  cardMuted: '#F8FAFC',
-  filled: '#F1F5F9',
-  overlay: 'rgba(10, 20, 38, 0.48)',
+  cardMuted: '#F8F8F6',
+  filled: '#F0F0ED',
+  overlay: 'rgba(15, 35, 46, 0.55)',
 
-  /* Type */
-  text: '#101828',
-  text2: '#475467',
-  text3: '#98A2B3',
+  /* Type — Dark Steel ink, calm steel-grey support */
+  text: '#0F232E',
+  text2: '#5A6B73',
+  text3: '#93A0A6',
   textInverse: '#FFFFFF',
 
-  /* Lines */
-  border: '#E4E9F2',
-  borderStrong: '#D3DBE8',
-  separator: '#EDF1F7',
+  /* Lines — Titanium Grey family */
+  border: '#E1E1E1',
+  borderStrong: '#CFCFCD',
+  separator: '#ECECEA',
 
-  /* Semantics */
-  success: '#079455',
-  successSoft: '#E9FBF2',
-  successBorder: '#B7EBCF',
-  warning: '#DC6803',
-  warningSoft: '#FFF6E8',
-  warningBorder: '#FBDBA7',
-  error: '#D92D20',
-  errorSoft: '#FEF0EF',
-  errorBorder: '#F9C6C2',
-  info: '#1570EF',
-  infoSoft: '#EFF8FF',
-  infoBorder: '#C6E0FF',
+  /* Semantics — green/amber for status; a true red for error, kept distinct
+     from the brand orange so "error" never reads as "brand accent" */
+  success: '#2F8A5B',
+  successSoft: '#E7F4EC',
+  successBorder: '#B6E0C6',
+  warning: '#C57A12',
+  warningSoft: '#FBF1E1',
+  warningBorder: '#F1D49C',
+  error: '#C62828',
+  errorSoft: '#FBE9E9',
+  errorBorder: '#F0C2C2',
+  info: '#0F232E',
+  infoSoft: '#EBEEEF',
+  infoBorder: '#C7D0D3',
 
-  /* Navigation rail */
-  sidebar: '#0A1B33',
-  sidebarDeep: '#071427',
-  sidebarElevated: '#12294A',
-  sidebarText: '#E7EEF9',
-  sidebarMuted: '#8FA6C4',
+  /* Navigation rail — brand Dark Steel #0F232E, orange active state */
+  sidebar: '#0F232E',
+  sidebarDeep: '#0A181F',
+  sidebarElevated: '#1A333F',
+  sidebarText: '#EAEDEE',
+  sidebarMuted: '#8D9BA1',
   sidebarBorder: 'rgba(255, 255, 255, 0.08)',
-  sidebarActive: 'rgba(255, 255, 255, 0.10)',
-  sidebarActiveBorder: 'rgba(255, 255, 255, 0.16)',
-  sidebarGlow: 'rgba(37, 99, 235, 0.35)',
+  sidebarActive: 'rgba(255, 85, 50, 0.16)',
+  sidebarActiveBorder: 'rgba(255, 85, 50, 0.42)',
+  sidebarGlow: 'rgba(255, 85, 50, 0.45)',
 
   /* Legacy keys retained */
-  dark: '#0A1B33',
-  tabBar: 'rgba(255, 255, 255, 0.94)',
-  headerBg: 'rgba(244, 246, 250, 0.92)',
+  dark: '#0F232E',
+  tabBar: 'rgba(255, 255, 255, 0.96)',
+  headerBg: 'rgba(246, 246, 244, 0.94)',
 } as const;
 
 export type Palette = typeof palette;
@@ -123,7 +142,7 @@ export const spacing = { xxs: 2, xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, 
 export const minTouch = 44;
 
 export const shadowCard = {
-  shadowColor: '#0A1B33',
+  shadowColor: '#0F232E',
   shadowOpacity: 0.05,
   shadowRadius: 18,
   shadowOffset: { width: 0, height: 6 },
@@ -131,7 +150,7 @@ export const shadowCard = {
 } as const;
 
 export const shadowPop = {
-  shadowColor: '#0A1B33',
+  shadowColor: '#0F232E',
   shadowOpacity: 0.14,
   shadowRadius: 28,
   shadowOffset: { width: 0, height: 12 },
@@ -139,7 +158,7 @@ export const shadowPop = {
 } as const;
 
 export const shadowSidebar = {
-  shadowColor: '#0A1B33',
+  shadowColor: '#0F232E',
   shadowOpacity: 0.18,
   shadowRadius: 24,
   shadowOffset: { width: 6, height: 0 },
@@ -189,3 +208,50 @@ export function toneColors(tone: 'neutral' | 'ok' | 'warn' | 'error' | 'info' | 
       return { fg: palette.text2, bg: palette.filled, border: palette.border };
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/* Additional system tokens (Alleima revamp, Phase 3)                         */
+/* Additive only — no existing key changed.                                   */
+/* -------------------------------------------------------------------------- */
+
+/** Visible focus indicator for keyboard navigation (web). */
+export const focus = {
+  color: palette.tint,
+  ring: '#FFB3A1',
+  width: 2,
+  offset: 2,
+} as const;
+
+/** Transition durations (ms). Keep motion subtle and purposeful. */
+export const motion = {
+  fast: 120,
+  base: 180,
+  slow: 260,
+} as const;
+
+/** Z-index layers — one scale to avoid stacking conflicts. */
+export const zIndex = {
+  base: 0,
+  sidebar: 20,
+  header: 30,
+  bottomNav: 40,
+  dropdown: 50,
+  overlay: 60,
+  modal: 70,
+  toast: 90,
+} as const;
+
+/** Page content containers (max readable widths, px). */
+export const container = {
+  narrow: 720,
+  content: 1080,
+  wide: 1320,
+  full: 1560,
+} as const;
+
+/** Responsive breakpoints (px) — mirrors the values used in AppShell. */
+export const breakpoints = {
+  compact: 760,
+  wide: 1024,
+  roomy: 1320,
+} as const;

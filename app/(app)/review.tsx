@@ -24,6 +24,17 @@ const FLOWS: { title: string; desc: string; route: string; icon: 'layoutDashboar
 ];
 
 const DEMO_ROLES: Role[] = ['management', 'costing', 'finance', 'operator', 'auditor'];
+
+/**
+ * Alleima-style "big number" stat band (Phase 5) — echoes the reference site's
+ * figure storytelling. Values describe the review build itself, not production.
+ */
+const STATS: { value: string; label: string }[] = [
+  { value: '17', label: 'Business modules in scope' },
+  { value: '15', label: 'User roles modelled' },
+  { value: '8', label: 'End-to-end journeys' },
+  { value: '100%', label: 'Decimal-safe costing coverage' },
+];
 const DECISIONS = ['D-01 roles / maker-checker', 'D-03 127 CCs + PCs', 'D-10 costing formulas', 'D-13 close sequence', 'D-16 ERP live vs import'];
 const CATS = ['Missing feature', 'Incorrect flow', 'UI/UX', 'Permission', 'Calculation', 'Report', 'Integration', 'Policy decision'];
 
@@ -61,6 +72,15 @@ export default function Review() {
         right={<StatusChip label="v0.1.0 demo" tone="info" />}
       />
       <DemoBanner />
+
+      <View style={[styles.statBand, { flexDirection: cols === 1 ? 'column' : 'row' }]}>
+        {STATS.map((s) => (
+          <View key={s.label} style={[styles.stat, cols === 1 && { width: '100%' }]}>
+            <Text style={styles.statValue}>{s.value}</Text>
+            <Text style={styles.statLabel}>{s.label}</Text>
+          </View>
+        ))}
+      </View>
 
       <Card style={styles.progressCard}>
         <View style={styles.progressLeft}>
@@ -224,6 +244,18 @@ export default function Review() {
 }
 
 const styles = StyleSheet.create({
+  statBand: {
+    gap: 1,
+    backgroundColor: palette.border,
+    borderRadius: radius.card,
+    borderWidth: 1,
+    borderColor: palette.border,
+    overflow: 'hidden',
+    marginBottom: 12,
+  },
+  stat: { flex: 1, backgroundColor: palette.card, paddingVertical: 20, paddingHorizontal: 18, minWidth: 140 },
+  statValue: { fontSize: 32, fontWeight: '800', color: palette.sidebar, fontFamily: fontStack, letterSpacing: -0.8 },
+  statLabel: { ...type.footnote, color: palette.text2, marginTop: 4, fontFamily: fontStack } as never,
   progressCard: { flexDirection: 'row', alignItems: 'center', padding: 18 },
   progressLeft: { flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1, flexWrap: 'wrap' },
   ringValue: { fontSize: 22, fontWeight: '800', color: palette.text, fontFamily: fontStack },

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Icon } from './Icon';
-import { fontStack, minTouch, palette, radius, type } from '../theme/tokens';
+import { Button } from './ui';
+import { fontStack, focus, minTouch, palette, radius, type } from '../theme/tokens';
 
 export function FormField({ label, value, onChange, error, placeholder, secure, keyboard, hint }: {
   label: string;
@@ -27,7 +28,7 @@ export function FormField({ label, value, onChange, error, placeholder, secure, 
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         accessibilityLabel={label}
-        style={[styles.input, focused && { borderColor: palette.tint }, error ? { borderColor: palette.error } : null]}
+        style={[styles.input, focused && styles.inputFocus, error ? { borderColor: palette.error } : null]}
       />
       {hint && !error ? <Text style={styles.hint}>{hint}</Text> : null}
       {error ? (
@@ -40,29 +41,22 @@ export function FormField({ label, value, onChange, error, placeholder, secure, 
   );
 }
 
+/**
+ * Legacy API kept for existing call sites (admin/finance/cost-centres). Phase 7
+ * consolidation: this now delegates to the single canonical `Button` so there is
+ * one button implementation and one visual language. Props are unchanged.
+ */
 export function PrimaryButton({ label, onPress, tone = 'primary', disabled }: {
   label: string;
   onPress: () => void;
   tone?: 'primary' | 'neutral' | 'danger';
   disabled?: boolean;
 }) {
-  const [pressed, setPressed] = useState(false);
-  const bg = tone === 'primary' ? palette.tint : tone === 'danger' ? palette.error : palette.filled;
-  const fg = tone === 'neutral' ? palette.tint : '#fff';
+  const variant = tone === 'danger' ? 'danger' : tone === 'neutral' ? 'secondary' : 'primary';
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      onPressIn={() => setPressed(true)}
-      onPressOut={() => setPressed(false)}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ disabled: !!disabled }}
-      hitSlop={8}
-      style={[styles.btn, { backgroundColor: bg, opacity: disabled ? 0.45 : pressed ? 0.82 : 1 }]}
-    >
-      <Text style={[styles.btnT, { color: fg as never }]}>{label}</Text>
-    </Pressable>
+    <View style={{ marginTop: 6 }}>
+      <Button label={label} onPress={onPress} variant={variant} disabled={disabled} fullWidth />
+    </View>
   );
 }
 
@@ -81,9 +75,14 @@ const styles = StyleSheet.create({
     fontFamily: fontStack,
     outlineStyle: 'none',
   } as never,
+  inputFocus: {
+    borderColor: palette.tint,
+    outlineStyle: 'solid',
+    outlineColor: focus.ring,
+    outlineWidth: focus.width,
+    outlineOffset: focus.offset,
+  } as never,
   hint: { ...type.caption1, color: palette.text3, marginTop: 4, fontFamily: fontStack } as never,
   errRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 5 },
   err: { ...type.caption1, color: palette.error, fontWeight: '600', flex: 1, fontFamily: fontStack } as never,
-  btn: { borderRadius: radius.button, minHeight: minTouch, paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center', marginTop: 6 },
-  btnT: { ...type.headline, fontFamily: fontStack } as never,
 });
