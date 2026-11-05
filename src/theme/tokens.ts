@@ -1,15 +1,15 @@
 /**
  * Alleima Cost Intelligence — production design system.
  *
- * Direction: the OFFICIAL Alleima brand identity (Kurppa Hosk). Molten Orange
- * (#FF5532) is the single confident accent — logo, interaction, links, active
- * nav, chart highlights. Dark Steel (#0F232E) is the ink and the navigation
- * rail. Iron Red (#872823) is the deep secondary. White canvas with a Titanium
- * Grey (#E1E1E1) neutral family. Editorial, industrial, premium — thin orange
- * rules, generous whitespace, near-black type with orange emphasis.
+ * Direction: a fresh, airy teal → blue gradient theme (per client reference
+ * image). A bright cyan-teal (#12B5C9) is the single confident accent — logo,
+ * interaction, links, active nav, chart highlights — flowing into a sky blue
+ * (#2B9BE0). A deep teal-navy (#0C2E3A) is the ink and the navigation rail.
+ * Cool near-white canvas. Light, refreshing, glassy — soft gradients, generous
+ * whitespace, cool slate type with cyan emphasis.
  *
- * Brand hex per the published Alleima identity: Molten Orange #FF5532,
- * Dark Steel Blue #0F232E, Iron Red #872823, White, Titanium Grey #E1E1E1.
+ * Palette: Cyan-teal #12B5C9, Sky blue #2B9BE0, Teal-navy #0C2E3A,
+ * cool greys, white.
  *
  * IMPORTANT: token KEYS are a shared contract consumed across every screen and
  * component. Re-toning changes VALUES only; keys are preserved so no consumer
@@ -35,64 +35,63 @@ export const monoStack =
   "'SFMono-Regular', ui-monospace, 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace";
 
 export const palette = {
-  /* Brand + interaction — Molten Orange #FF5532 carries all interaction */
-  tint: '#FF5532',
-  tintPressed: '#E8431F',
-  tintSoft: '#FFEDE8',
-  tintBorder: '#FFCFC2',
-  accent: '#872823',
-  accentSoft: '#F6E7E5',
-  accentBorder: '#E6C3BF',
+  /* Brand + interaction — bright cyan-teal carries all interaction */
+  tint: '#12B5C9',
+  tintPressed: '#0E96A8',
+  tintSoft: '#E2F6F9',
+  tintBorder: '#B6E8EF',
+  accent: '#2B9BE0',
+  accentSoft: '#E4F2FC',
+  accentBorder: '#BBDDF6',
 
-  /* Surfaces — white canvas with a soft titanium-grey wash */
-  bg: '#F6F6F4',
-  bgAlt: '#EDEDEA',
+  /* Surfaces — airy near-white canvas with a cool wash */
+  bg: '#F3F8FB',
+  bgAlt: '#E8F1F6',
   card: '#FFFFFF',
-  cardMuted: '#F8F8F6',
-  filled: '#F0F0ED',
-  overlay: 'rgba(15, 35, 46, 0.55)',
+  cardMuted: '#F5FAFC',
+  filled: '#EDF4F8',
+  overlay: 'rgba(12, 46, 58, 0.52)',
 
-  /* Type — Dark Steel ink, calm steel-grey support */
-  text: '#0F232E',
-  text2: '#5A6B73',
-  text3: '#93A0A6',
+  /* Type — deep teal-navy ink, cool slate support */
+  text: '#0E2A33',
+  text2: '#51707A',
+  text3: '#8BA3AC',
   textInverse: '#FFFFFF',
 
-  /* Lines — Titanium Grey family */
-  border: '#E1E1E1',
-  borderStrong: '#CFCFCD',
-  separator: '#ECECEA',
+  /* Lines — cool grey-blue family */
+  border: '#DCE7ED',
+  borderStrong: '#C6D6DE',
+  separator: '#E7EFF3',
 
-  /* Semantics — green/amber for status; a true red for error, kept distinct
-     from the brand orange so "error" never reads as "brand accent" */
-  success: '#2F8A5B',
-  successSoft: '#E7F4EC',
-  successBorder: '#B6E0C6',
-  warning: '#C57A12',
-  warningSoft: '#FBF1E1',
-  warningBorder: '#F1D49C',
-  error: '#C62828',
-  errorSoft: '#FBE9E9',
-  errorBorder: '#F0C2C2',
-  info: '#0F232E',
-  infoSoft: '#EBEEEF',
-  infoBorder: '#C7D0D3',
+  /* Semantics — kept distinct from the teal/blue brand */
+  success: '#0E9F6E',
+  successSoft: '#E4F7EF',
+  successBorder: '#AEE6D0',
+  warning: '#D98A0B',
+  warningSoft: '#FCF2E0',
+  warningBorder: '#F5D79B',
+  error: '#E0453C',
+  errorSoft: '#FCEAE9',
+  errorBorder: '#F6C4C0',
+  info: '#2B9BE0',
+  infoSoft: '#E4F2FC',
+  infoBorder: '#BBDDF6',
 
-  /* Navigation rail — brand Dark Steel #0F232E, orange active state */
-  sidebar: '#0F232E',
-  sidebarDeep: '#0A181F',
-  sidebarElevated: '#1A333F',
-  sidebarText: '#EAEDEE',
-  sidebarMuted: '#8D9BA1',
+  /* Navigation rail — deep teal-navy, cyan active state */
+  sidebar: '#0C2E3A',
+  sidebarDeep: '#07212B',
+  sidebarElevated: '#143E4C',
+  sidebarText: '#E7F2F5',
+  sidebarMuted: '#89A6B0',
   sidebarBorder: 'rgba(255, 255, 255, 0.08)',
-  sidebarActive: 'rgba(255, 85, 50, 0.16)',
-  sidebarActiveBorder: 'rgba(255, 85, 50, 0.42)',
-  sidebarGlow: 'rgba(255, 85, 50, 0.45)',
+  sidebarActive: 'rgba(18, 181, 201, 0.18)',
+  sidebarActiveBorder: 'rgba(18, 181, 201, 0.45)',
+  sidebarGlow: 'rgba(18, 181, 201, 0.45)',
 
   /* Legacy keys retained */
-  dark: '#0F232E',
+  dark: '#0C2E3A',
   tabBar: 'rgba(255, 255, 255, 0.96)',
-  headerBg: 'rgba(246, 246, 244, 0.94)',
+  headerBg: 'rgba(243, 248, 251, 0.94)',
 } as const;
 
 export type Palette = typeof palette;
@@ -142,7 +141,7 @@ export const spacing = { xxs: 2, xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, 
 export const minTouch = 44;
 
 export const shadowCard = {
-  shadowColor: '#0F232E',
+  shadowColor: '#0C2E3A',
   shadowOpacity: 0.05,
   shadowRadius: 18,
   shadowOffset: { width: 0, height: 6 },
@@ -150,7 +149,7 @@ export const shadowCard = {
 } as const;
 
 export const shadowPop = {
-  shadowColor: '#0F232E',
+  shadowColor: '#0C2E3A',
   shadowOpacity: 0.14,
   shadowRadius: 28,
   shadowOffset: { width: 0, height: 12 },
@@ -158,7 +157,7 @@ export const shadowPop = {
 } as const;
 
 export const shadowSidebar = {
-  shadowColor: '#0F232E',
+  shadowColor: '#0C2E3A',
   shadowOpacity: 0.18,
   shadowRadius: 24,
   shadowOffset: { width: 6, height: 0 },
@@ -217,7 +216,7 @@ export function toneColors(tone: 'neutral' | 'ok' | 'warn' | 'error' | 'info' | 
 /** Visible focus indicator for keyboard navigation (web). */
 export const focus = {
   color: palette.tint,
-  ring: '#FFB3A1',
+  ring: '#8FE0EA',
   width: 2,
   offset: 2,
 } as const;
@@ -254,4 +253,59 @@ export const breakpoints = {
   compact: 760,
   wide: 1024,
   roomy: 1320,
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/* Material / depth layer (UI refresh)                                        */
+/* Additive only. Richer elevation, brand gradients and glass surfaces to make */
+/* the app feel premium and "material", while keeping the Alleima palette.     */
+/* -------------------------------------------------------------------------- */
+
+/** Brand gradients (consumed by LinearGradient `colors`). */
+export const gradient = {
+  /** Cyan → blue brand sweep — hero accents, primary emphasis. */
+  brand: ['#1FC8D6', '#12B5C9', '#2B9BE0'] as const,
+  /** Bright aqua — KPI accents, CTAs. */
+  ember: ['#2FD0DC', '#12B5C9'] as const,
+  /** Deep teal-navy — rails, headers, dark heroes. */
+  steel: ['#143E4C', '#0C2E3A', '#07212B'] as const,
+  /** Sky-blue secondary. */
+  iron: ['#49ADEA', '#2B9BE0'] as const,
+  /** Teal "intelligence" accent. */
+  teal: ['#17C0CE', '#0E96A8'] as const,
+  /** Very soft canvas wash for section backgrounds. */
+  wash: ['#FFFFFF', '#F3F8FB'] as const,
+  /** Soft cyan tint wash for highlighted cards. */
+  tintWash: ['#EAF9FB', '#E2F6F9'] as const,
+} as const;
+
+/**
+ * Elevation scale (Material-style). Each level is a usable RN/web shadow.
+ * Shadow colour is the brand dark steel so depth reads warm, not grey.
+ */
+const SH = '#0C2E3A';
+export const elevation = {
+  0: { shadowColor: SH, shadowOpacity: 0, shadowRadius: 0, shadowOffset: { width: 0, height: 0 }, elevation: 0 },
+  1: { shadowColor: SH, shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
+  2: { shadowColor: SH, shadowOpacity: 0.07, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 3 },
+  3: { shadowColor: SH, shadowOpacity: 0.10, shadowRadius: 24, shadowOffset: { width: 0, height: 12 }, elevation: 6 },
+  4: { shadowColor: SH, shadowOpacity: 0.14, shadowRadius: 36, shadowOffset: { width: 0, height: 20 }, elevation: 12 },
+} as const;
+
+/** Glass surface (frosted card) — translucent fill + hairline highlight. */
+export const glass = {
+  bg: 'rgba(255, 255, 255, 0.72)',
+  border: 'rgba(255, 255, 255, 0.60)',
+  bgDark: 'rgba(15, 35, 46, 0.55)',
+  borderDark: 'rgba(255, 255, 255, 0.10)',
+} as const;
+
+/** Soft "halo" tints for icon badges and accent surfaces. */
+export const halo = {
+  brand: 'rgba(18, 181, 201, 0.14)',
+  brandStrong: 'rgba(18, 181, 201, 0.22)',
+  teal: 'rgba(43, 155, 224, 0.12)',
+  success: 'rgba(14, 159, 110, 0.12)',
+  warning: 'rgba(198, 112, 11, 0.12)',
+  error: 'rgba(198, 56, 45, 0.12)',
 } as const;

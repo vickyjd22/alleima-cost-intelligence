@@ -64,13 +64,13 @@ export default function SignIn() {
     <ScrollView style={styles.root} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       <View style={[styles.frame, split && { flexDirection: 'row' }]}>
         {split ? (
-          <LinearGradient colors={['#1A333F', '#0F232E', '#0A181F']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+          <LinearGradient colors={['#143E4C', '#0C2E3A', '#07212B']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
             <View style={styles.glowA} />
             <View style={styles.glowB} />
             <BrandMark size={40} onDark />
             <View style={{ flex: 1, justifyContent: 'center', gap: 10, paddingVertical: 34 }}>
               <View style={styles.badge}>
-                <Icon name="sparkles" size={12} color="#FF7A5C" />
+                <Icon name="sparkles" size={12} color="#5FE0EC" />
                 <Text style={styles.badgeT}>MANUFACTURING COST INTELLIGENCE</Text>
               </View>
               <Text style={styles.heroTitle}>Every tonne.{'\n'}Every cost. Explained.</Text>
@@ -82,7 +82,7 @@ export default function SignIn() {
               {VALUE_PROPS.map((v) => (
                 <View key={v.title} style={styles.prop}>
                   <View style={styles.propIcon}>
-                    <Icon name={v.icon} size={16} color="#FF7A5C" strokeWidth={1.9} />
+                    <Icon name={v.icon} size={16} color="#5FE0EC" strokeWidth={1.9} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.propT}>{v.title}</Text>
@@ -173,10 +173,10 @@ const styles = StyleSheet.create({
     elevation: 10,
   } as never,
   hero: { width: '48%', padding: 38, overflow: 'hidden', justifyContent: 'space-between', minHeight: 620 },
-  glowA: { position: 'absolute', width: 320, height: 320, borderRadius: 160, backgroundColor: 'rgba(255,85,50,0.22)', top: -90, right: -100 },
-  glowB: { position: 'absolute', width: 260, height: 260, borderRadius: 130, backgroundColor: 'rgba(135,40,35,0.26)', bottom: -80, left: -70 },
-  badge: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', paddingHorizontal: 9, paddingVertical: 5, borderRadius: radius.pill, backgroundColor: 'rgba(255,85,50,0.14)', borderWidth: 1, borderColor: 'rgba(255,85,50,0.30)', marginBottom: 4 },
-  badgeT: { fontSize: 9.5, fontWeight: '800', color: '#FFB3A1', letterSpacing: 0.9, fontFamily: fontStack },
+  glowA: { position: 'absolute', width: 320, height: 320, borderRadius: 160, backgroundColor: 'rgba(18,181,201,0.26)', top: -90, right: -100 },
+  glowB: { position: 'absolute', width: 260, height: 260, borderRadius: 130, backgroundColor: 'rgba(43,155,224,0.22)', bottom: -80, left: -70 },
+  badge: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', paddingHorizontal: 9, paddingVertical: 5, borderRadius: radius.pill, backgroundColor: 'rgba(18,181,201,0.16)', borderWidth: 1, borderColor: 'rgba(18,181,201,0.32)', marginBottom: 4 },
+  badgeT: { fontSize: 9.5, fontWeight: '800', color: '#8FE0EA', letterSpacing: 0.9, fontFamily: fontStack },
   heroTitle: { fontSize: 40, lineHeight: 46, fontWeight: '800', color: '#FFFFFF', letterSpacing: -1.4, fontFamily: fontStack },
   heroSub: { fontSize: 14.5, lineHeight: 22, color: '#B9C7DA', maxWidth: 360, marginTop: 4, fontFamily: fontStack },
   prop: { flexDirection: 'row', gap: 11, alignItems: 'flex-start' },

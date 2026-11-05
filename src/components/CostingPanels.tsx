@@ -2,13 +2,13 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Icon, type IconName } from './Icon';
 import { Card } from './ui';
-import { fontStack, palette, radius, type } from '../theme/tokens';
+import { fontStack, halo, palette, radius, type } from '../theme/tokens';
 
 function PanelHead({ icon, title, hint }: { icon: IconName; title: string; hint?: string }) {
   return (
     <View style={styles.head}>
       <View style={styles.headIcon}>
-        <Icon name={icon} size={16} color={palette.tint} strokeWidth={1.9} />
+        <Icon name={icon} size={16} color={palette.tint} strokeWidth={2} />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.headTitle}>{title}</Text>
@@ -78,7 +78,7 @@ export function ChartCard({ title, bars, hint }: { title: string; bars: { label:
 
 const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', gap: 9 },
-  headIcon: { width: 30, height: 30, borderRadius: 9, backgroundColor: palette.tintSoft, alignItems: 'center', justifyContent: 'center' },
+  headIcon: { width: 32, height: 32, borderRadius: 10, backgroundColor: halo.brand, alignItems: 'center', justifyContent: 'center' },
   headTitle: { ...type.headline, color: palette.text, fontFamily: fontStack } as never,
   headHint: { ...type.caption1, color: palette.text3, fontFamily: fontStack, marginTop: 1 } as never,
   rows: { marginTop: 8 },
@@ -104,6 +104,6 @@ const styles = StyleSheet.create({
   barHead: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
   barLabel: { ...type.caption1, color: palette.text2, fontFamily: fontStack } as never,
   barValue: { ...type.caption1, color: palette.text, fontWeight: '700', fontFamily: fontStack } as never,
-  track: { height: 8, backgroundColor: palette.bgAlt, borderRadius: radius.pill, overflow: 'hidden' },
-  fill: { height: 8, backgroundColor: palette.tint, borderRadius: radius.pill },
+  track: { height: 10, backgroundColor: palette.bgAlt, borderRadius: radius.pill, overflow: 'hidden' },
+  fill: { height: 10, backgroundColor: palette.tint, borderRadius: radius.pill },
 });

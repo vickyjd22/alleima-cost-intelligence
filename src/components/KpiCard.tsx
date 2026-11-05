@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Icon, type IconName } from './Icon';
 import { DeltaPill, SparkBars } from './ui';
-import { displayFontStack, fontStack, palette, radius, shadowCard, type } from '../theme/tokens';
+import { displayFontStack, elevation, fontStack, halo, palette, radius, type } from '../theme/tokens';
 
 /**
  * KPI card: a single number with just enough context to act on. The icon
@@ -32,12 +32,14 @@ export function KpiCard({
 }) {
   const statusColor =
     status === 'ok' ? palette.success : status === 'warn' ? palette.warning : status === 'error' ? palette.error : null;
+  const badgeHalo =
+    status === 'ok' ? halo.success : status === 'warn' ? halo.warning : status === 'error' ? halo.error : halo.brand;
   return (
     <View style={styles.card} accessibilityRole="summary" accessibilityLabel={`${title}: ${value}${unit ? ` ${unit}` : ''}${hint ? `. ${hint}` : ''}`}>
       <View style={styles.top}>
         {icon ? (
-          <View style={[styles.iconBadge, statusColor ? { backgroundColor: `${statusColor}14` } : null]}>
-            <Icon name={icon} size={17} color={statusColor ?? palette.tint} strokeWidth={1.9} />
+          <View style={[styles.iconBadge, { backgroundColor: badgeHalo }]}>
+            <Icon name={icon} size={18} color={statusColor ?? palette.tint} strokeWidth={2} />
           </View>
         ) : null}
         <Text style={styles.title} numberOfLines={2}>{title}</Text>
@@ -69,17 +71,17 @@ export function KpiCard({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: palette.card,
-    borderRadius: radius.card,
-    padding: 16,
+    borderRadius: radius.lg,
+    padding: 18,
     borderWidth: 1,
     borderColor: palette.border,
     minWidth: 168,
     flex: 1,
     gap: 10,
-    ...shadowCard,
+    ...elevation[2],
   } as never,
-  top: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  iconBadge: { width: 30, height: 30, borderRadius: 9, backgroundColor: palette.tintSoft, alignItems: 'center', justifyContent: 'center' },
+  top: { flexDirection: 'row', alignItems: 'center', gap: 9 },
+  iconBadge: { width: 34, height: 34, borderRadius: 11, backgroundColor: palette.tintSoft, alignItems: 'center', justifyContent: 'center' },
   title: { ...type.footnote, color: palette.text2, fontWeight: '600', flex: 1, fontFamily: fontStack } as never,
   statusDot: { width: 7, height: 7, borderRadius: 4 },
   valueRow: { flexDirection: 'row', alignItems: 'baseline' },

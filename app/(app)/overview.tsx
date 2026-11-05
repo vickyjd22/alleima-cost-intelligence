@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { AppShell } from '../../src/components/AppShell';
 import { KpiCard } from '../../src/components/KpiCard';
@@ -14,7 +15,7 @@ import { closeProgress } from '../../src/lib/close';
 import { demoDb } from '../../src/mocks/demo';
 import { KNOWN_PCS } from '../../src/data/sample';
 import { KPI_TRIGGERS } from '../../src/mocks/manual';
-import { displayFontStack, fontStack, palette, radius, type } from '../../src/theme/tokens';
+import { displayFontStack, elevation, fontStack, gradient, palette, radius, type } from '../../src/theme/tokens';
 
 type Kpi = [string, string, string, 'ok' | 'warn' | 'error' | undefined, string];
 
@@ -94,22 +95,31 @@ export default function Overview() {
         <Skeleton lines={6} />
       ) : (
         <View style={{ gap: 28 }}>
-          {/* ---- HIG large-title header ------------------------------------ */}
-          <View style={styles.hero}>
-            <View style={styles.heroText}>
-              <Text style={styles.eyebrow}>MANAGEMENT DASHBOARD</Text>
-              <Text style={styles.largeTitle} accessibilityRole="header">
-                Cost control at a glance
-              </Text>
-              <Text style={styles.heroSub}>
-                Mehsana plant · period {periodLabel} · illustrative sample data. Triggers guide attention; they are
-                not statutory limits.
-              </Text>
+          {/* ---- Rich brand-gradient hero --------------------------------- */}
+          <LinearGradient colors={gradient.steel} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+            <View style={styles.heroGlowA} />
+            <View style={styles.heroGlowB} />
+            <View style={styles.heroTop}>
+              <View style={styles.heroText}>
+                <View style={styles.heroBadge}>
+                  <View style={styles.heroDot} />
+                  <Text style={styles.heroBadgeT}>MANAGEMENT DASHBOARD</Text>
+                </View>
+                <Text style={styles.largeTitle} accessibilityRole="header">Cost control at a glance</Text>
+                <Text style={styles.heroSub}>Mehsana plant · period {periodLabel} · illustrative sample data.</Text>
+              </View>
+              <View style={styles.heroAside}><PeriodSelector /></View>
             </View>
-            <View style={styles.heroAside}>
-              <PeriodSelector />
+            <View style={styles.heroStats}>
+              <HeroStat label="Revenue" value="₹4.82 Cr" />
+              <View style={styles.heroDivider} />
+              <HeroStat label="Mfg cost" value="₹3.61 Cr" />
+              <View style={styles.heroDivider} />
+              <HeroStat label="Gross margin" value="25.1%" accent />
+              <View style={styles.heroDivider} />
+              <HeroStat label="Yield" value="94.2%" />
             </View>
-          </View>
+          </LinearGradient>
 
           {/* ---- Summary card (iOS widget style) --------------------------- */}
           <View style={styles.summary}>
@@ -279,6 +289,15 @@ export default function Overview() {
   );
 }
 
+function HeroStat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <View style={styles.heroStat}>
+      <Text style={styles.heroStatLabel}>{label}</Text>
+      <Text style={[styles.heroStatValue, accent && { color: '#5FE0EC' }]}>{value}</Text>
+    </View>
+  );
+}
+
 function Metric({ label, value, tone, icon }: { label: string; value: string; tone: 'ok' | 'warn' | 'error'; icon: IconName }) {
   const c = tone === 'ok' ? palette.success : tone === 'warn' ? palette.warning : palette.error;
   return (
@@ -293,13 +312,23 @@ function Metric({ label, value, tone, icon }: { label: string; value: string; to
 }
 
 const styles = StyleSheet.create({
-  /* Hero / large title */
-  hero: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16, flexWrap: 'wrap' },
-  heroText: { flex: 1, minWidth: 260, gap: 6 },
-  eyebrow: { ...type.caption2, color: palette.tint, letterSpacing: 1.4, fontFamily: fontStack } as never,
-  largeTitle: { fontSize: 34, lineHeight: 40, fontWeight: '800', color: palette.text, letterSpacing: -1, fontFamily: displayFontStack } as never,
-  heroSub: { ...type.callout, color: palette.text2, maxWidth: 760, fontFamily: fontStack } as never,
+  /* Rich gradient hero */
+  hero: { borderRadius: radius.xl, padding: 24, overflow: 'hidden', gap: 18, ...elevation[3] } as never,
+  heroGlowA: { position: 'absolute', width: 300, height: 300, borderRadius: 150, backgroundColor: 'rgba(18,181,201,0.26)', top: -120, right: -80 },
+  heroGlowB: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: 'rgba(43,155,224,0.18)', bottom: -110, left: -60 },
+  heroTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16, flexWrap: 'wrap' },
+  heroText: { flex: 1, minWidth: 260, gap: 8 },
+  heroBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.10)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)', borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },
+  heroDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#5FE0EC' },
+  heroBadgeT: { ...type.caption2, color: 'rgba(255,255,255,0.86)', letterSpacing: 1.2, fontFamily: fontStack } as never,
+  largeTitle: { fontSize: 34, lineHeight: 40, fontWeight: '800', color: '#FFFFFF', letterSpacing: -1, fontFamily: displayFontStack } as never,
+  heroSub: { ...type.callout, color: 'rgba(255,255,255,0.72)', maxWidth: 760, fontFamily: fontStack } as never,
   heroAside: { alignItems: 'flex-end' },
+  heroStats: { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.12)', paddingTop: 16 },
+  heroStat: { flex: 1, minWidth: 110, gap: 3 },
+  heroStatLabel: { ...type.caption1, color: 'rgba(255,255,255,0.60)', fontFamily: fontStack } as never,
+  heroStatValue: { fontSize: 22, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5, fontFamily: displayFontStack, fontVariant: ['tabular-nums'] } as never,
+  heroDivider: { width: 1, alignSelf: 'stretch', backgroundColor: 'rgba(255,255,255,0.12)', marginVertical: 2 },
 
   /* Summary widget */
   summary: {

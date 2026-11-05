@@ -23,7 +23,12 @@ export function PageHeader({
   return (
     <View style={styles.wrap} accessibilityRole="header">
       <View style={styles.textWrap}>
-        {eyebrow ? <Text style={styles.eyebrow}>{eyebrow.toUpperCase()}</Text> : null}
+        {eyebrow ? (
+          <View style={styles.eyebrowPill}>
+            <View style={styles.eyebrowDot} />
+            <Text style={styles.eyebrow}>{eyebrow.toUpperCase()}</Text>
+          </View>
+        ) : null}
         <Text style={[styles.title, large ? styles.large : styles.compact]} accessibilityRole="header">
           {title}
         </Text>
@@ -47,8 +52,10 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 12,
   },
-  textWrap: { flex: 1, minWidth: 240, gap: 5 },
-  eyebrow: { ...type.caption2, color: palette.tint, fontFamily: fontStack, letterSpacing: 0.9 } as never,
+  textWrap: { flex: 1, minWidth: 240, gap: 8 },
+  eyebrowPill: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', backgroundColor: palette.tintSoft, borderWidth: 1, borderColor: palette.tintBorder, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
+  eyebrowDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: palette.tint },
+  eyebrow: { ...type.caption2, color: palette.tintPressed, fontFamily: fontStack, letterSpacing: 0.9 } as never,
   title: { fontFamily: displayFontStack, color: palette.text, letterSpacing: -0.7 } as never,
   large: { ...type.title1 } as never,
   compact: { ...type.title2 } as never,

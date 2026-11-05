@@ -12,12 +12,13 @@ import {
 import { Svg, Circle, Path, G } from 'react-native-svg';
 import { Icon, type IconName } from './Icon';
 import {
+  elevation,
   focus,
   fontStack,
+  glass,
   minTouch,
   palette,
   radius,
-  shadowCard,
   spacing,
   toneColors,
   type,
@@ -32,19 +33,24 @@ export function Card({
   style,
   padded = true,
   tone,
+  elevate = 2,
 }: {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   padded?: boolean;
-  tone?: 'default' | 'muted' | 'tint';
+  tone?: 'default' | 'muted' | 'tint' | 'glass';
+  /** Material elevation 0–4 (default 2). Higher = more lift. */
+  elevate?: 0 | 1 | 2 | 3 | 4;
 }) {
   return (
     <View
       style={[
         styles.card,
+        elevation[elevate],
         padded && styles.cardPadded,
         tone === 'muted' && { backgroundColor: palette.cardMuted },
         tone === 'tint' && { backgroundColor: palette.tintSoft, borderColor: palette.tintBorder },
+        tone === 'glass' && ({ backgroundColor: glass.bg, borderColor: glass.border, backdropFilter: 'blur(14px)' } as never),
         style,
       ]}
     >
@@ -130,7 +136,9 @@ export function Button({
         styles.btn,
         dims.box,
         { backgroundColor: tone.bg, borderColor: tone.border, opacity: disabled ? 0.45 : 1 },
+        tone.solid && !disabled ? (hover ? elevation[3] : elevation[2]) : null,
         hover && !disabled ? { backgroundColor: tone.hover, borderColor: tone.hoverBorder } : null,
+        hover && !disabled && tone.solid ? ({ transform: [{ translateY: -1 }] } as never) : null,
         pressed && !disabled ? { transform: [{ translateY: 1 }] } : null,
         focused && !disabled ? styles.focusRing : null,
         fullWidth ? { alignSelf: 'stretch' } : null,
@@ -150,12 +158,12 @@ export function Button({
   );
 }
 
-const BUTTON_TONES: Record<ButtonVariant, { bg: string; fg: string; border: string; hover: string; hoverBorder: string }> = {
-  primary: { bg: palette.tint, fg: '#FFFFFF', border: palette.tint, hover: palette.tintPressed, hoverBorder: palette.tintPressed },
+const BUTTON_TONES: Record<ButtonVariant, { bg: string; fg: string; border: string; hover: string; hoverBorder: string; solid?: boolean }> = {
+  primary: { bg: palette.tint, fg: '#FFFFFF', border: palette.tint, hover: palette.tintPressed, hoverBorder: palette.tintPressed, solid: true },
   secondary: { bg: palette.card, fg: palette.text, border: palette.borderStrong, hover: palette.cardMuted, hoverBorder: palette.borderStrong },
   ghost: { bg: 'transparent', fg: palette.text2, border: 'transparent', hover: palette.filled, hoverBorder: 'transparent' },
-  danger: { bg: palette.error, fg: '#FFFFFF', border: palette.error, hover: '#B42318', hoverBorder: '#B42318' },
-  success: { bg: palette.success, fg: '#FFFFFF', border: palette.success, hover: '#067647', hoverBorder: '#067647' },
+  danger: { bg: palette.error, fg: '#FFFFFF', border: palette.error, hover: '#B42318', hoverBorder: '#B42318', solid: true },
+  success: { bg: palette.success, fg: '#FFFFFF', border: palette.success, hover: '#067647', hoverBorder: '#067647', solid: true },
 };
 
 const BUTTON_SIZES: Record<ButtonSize, { box: ViewStyle; fontSize: number; icon: number }> = {
@@ -489,7 +497,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     borderWidth: 1,
     borderColor: palette.border,
-    ...shadowCard,
   } as ViewStyle,
   cardPadded: { padding: spacing.xl },
   sectionHeader: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, marginBottom: 12 },
@@ -502,9 +509,9 @@ const styles = StyleSheet.create({
   btnLabel: { fontWeight: '600', fontFamily: fontStack, letterSpacing: -0.1 },
   focusRing: { outlineStyle: 'solid', outlineColor: focus.ring, outlineWidth: focus.width, outlineOffset: focus.offset } as never,
   iconBtn: { alignItems: 'center', justifyContent: 'center' },
-  tabsTrack: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: palette.bgAlt, borderRadius: radius.md, padding: 4 },
-  tab: { minHeight: 34, paddingHorizontal: 14, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
-  tabActive: { backgroundColor: palette.card, ...shadowCard } as ViewStyle,
+  tabsTrack: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: palette.bgAlt, borderRadius: radius.md, padding: 5 },
+  tab: { minHeight: 36, paddingHorizontal: 15, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
+  tabActive: { backgroundColor: palette.card, ...elevation[1] } as ViewStyle,
   tabLabel: { ...type.footnote, fontWeight: '600', fontFamily: fontStack } as never,
   empty: { alignItems: 'center', justifyContent: 'center', paddingVertical: 44, paddingHorizontal: 24, gap: 6 },
   emptyIcon: { width: 52, height: 52, borderRadius: 16, backgroundColor: palette.tintSoft, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },

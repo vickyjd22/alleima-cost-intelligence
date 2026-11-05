@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Icon } from './Icon';
-import { fontStack, palette, radius, type } from '../theme/tokens';
+import { elevation, fontStack, palette, radius, type } from '../theme/tokens';
 
 /** Detail sheet: bottom sheet on compact, focused dialog on wide screens. */
 export function DetailDrawer({ visible, title, onClose, children }: { visible: boolean; title: string; onClose: () => void; children: React.ReactNode }) {
@@ -40,7 +40,7 @@ export function KeyVal({ k, v }: { k: string; v: string }) {
 
 const styles = StyleSheet.create({
   back: { flex: 1, backgroundColor: palette.overlay, justifyContent: 'flex-end', alignItems: 'center' },
-  card: { backgroundColor: palette.card, paddingHorizontal: 22, paddingBottom: 24, paddingTop: 10, width: '100%' },
+  card: { backgroundColor: palette.card, paddingHorizontal: 22, paddingBottom: 24, paddingTop: 10, width: '100%', ...elevation[4] } as never,
   regular: { maxWidth: 520, borderRadius: radius.sheet, alignSelf: 'center', marginVertical: 40, maxHeight: '86%' },
   compact: { borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, maxHeight: '90%' },
   grabber: { width: 38, height: 4, borderRadius: 2, alignSelf: 'center', backgroundColor: palette.borderStrong, marginBottom: 10, marginTop: 2 },
