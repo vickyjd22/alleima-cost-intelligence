@@ -1,15 +1,11 @@
 /**
  * Alleima Cost Intelligence — production design system.
  *
- * Direction: a fresh, airy teal → blue gradient theme (per client reference
- * image). A bright cyan-teal (#12B5C9) is the single confident accent — logo,
- * interaction, links, active nav, chart highlights — flowing into a sky blue
- * (#2B9BE0). A deep teal-navy (#0C2E3A) is the ink and the navigation rail.
- * Cool near-white canvas. Light, refreshing, glassy — soft gradients, generous
- * whitespace, cool slate type with cyan emphasis.
- *
- * Palette: Cyan-teal #12B5C9, Sky blue #2B9BE0, Teal-navy #0C2E3A,
- * cool greys, white.
+ * Direction (per client reference dashboard): premium, minimal SaaS look.
+ * Light grey canvas (#F1F3F3), white elevated cards, Primary Teal (#10A99F)
+ * for actions and active navigation, pale mint/cyan decorative washes, soft
+ * low-opacity shadows, Inter typography. White sidebar with a solid-teal
+ * active item. Blue-violet (#5474E8) is the secondary data colour.
  *
  * IMPORTANT: token KEYS are a shared contract consumed across every screen and
  * component. Re-toning changes VALUES only; keys are preserved so no consumer
@@ -26,72 +22,79 @@
  * family name in each stack below; nothing else changes.
  */
 export const fontStack =
-  "'Manrope', 'Neurial Grotesk', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+  "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
 export const displayFontStack =
-  "'Space Grotesk', 'Neurial Grotesk', 'Manrope', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+  "'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
 export const monoStack =
   "'SFMono-Regular', ui-monospace, 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace";
 
 export const palette = {
-  /* Brand + interaction — bright cyan-teal carries all interaction */
-  tint: '#12B5C9',
-  tintPressed: '#0E96A8',
-  tintSoft: '#E2F6F9',
-  tintBorder: '#B6E8EF',
-  accent: '#2B9BE0',
-  accentSoft: '#E4F2FC',
-  accentBorder: '#BBDDF6',
+  /* Brand + interaction — Primary Teal carries all interaction */
+  tint: '#10A99F',
+  tintPressed: '#078F88',
+  tintSoft: '#E4F7F5',
+  tintBorder: '#BDE8E4',
+  mint: '#DDF5EE',
+  cyan: '#E8F7F7',
+  /* Secondary data/accent: information blue-violet (charts, 2nd series) */
+  accent: '#5474E8',
+  accentSoft: '#EAEFFD',
+  accentBorder: '#CBD6FA',
 
-  /* Surfaces — airy near-white canvas with a cool wash */
-  bg: '#F3F8FB',
-  bgAlt: '#E8F1F6',
+  /* Surfaces — light grey canvas, white elevated cards */
+  bg: '#F1F3F3',
+  bgAlt: '#E9EDED',
   card: '#FFFFFF',
-  cardMuted: '#F5FAFC',
-  filled: '#EDF4F8',
-  overlay: 'rgba(12, 46, 58, 0.52)',
+  cardMuted: '#F7F9F9',
+  filled: '#F1F4F4',
+  overlay: 'rgba(25, 45, 55, 0.45)',
 
-  /* Type — deep teal-navy ink, cool slate support */
-  text: '#0E2A33',
-  text2: '#51707A',
-  text3: '#8BA3AC',
+  /* Type */
+  text: '#202936',
+  text2: '#606873',
+  text3: '#9299A1',
   textInverse: '#FFFFFF',
 
-  /* Lines — cool grey-blue family */
-  border: '#DCE7ED',
-  borderStrong: '#C6D6DE',
-  separator: '#E7EFF3',
+  /* Lines */
+  border: '#E8ECEC',
+  borderStrong: '#D5DBDB',
+  separator: '#ECEFEF',
 
-  /* Semantics — kept distinct from the teal/blue brand */
-  success: '#0E9F6E',
-  successSoft: '#E4F7EF',
-  successBorder: '#AEE6D0',
-  warning: '#D98A0B',
-  warningSoft: '#FCF2E0',
-  warningBorder: '#F5D79B',
-  error: '#E0453C',
-  errorSoft: '#FCEAE9',
-  errorBorder: '#F6C4C0',
-  info: '#2B9BE0',
-  infoSoft: '#E4F2FC',
-  infoBorder: '#BBDDF6',
+  /* Semantics */
+  success: '#20A65A',
+  successSoft: '#E6F6EC',
+  successBorder: '#B5E4C7',
+  warning: '#E6A23C',
+  warningSoft: '#FDF4E3',
+  warningBorder: '#F4D9A4',
+  error: '#E45B65',
+  errorSoft: '#FCEBEC',
+  errorBorder: '#F5C3C7',
+  info: '#5474E8',
+  infoSoft: '#EAEFFD',
+  infoBorder: '#CBD6FA',
+  purple: '#8855E8',
+  pink: '#D84E9B',
 
-  /* Navigation rail — deep teal-navy, cyan active state */
-  sidebar: '#0C2E3A',
-  sidebarDeep: '#07212B',
-  sidebarElevated: '#143E4C',
-  sidebarText: '#E7F2F5',
-  sidebarMuted: '#89A6B0',
-  sidebarBorder: 'rgba(255, 255, 255, 0.08)',
-  sidebarActive: 'rgba(18, 181, 201, 0.18)',
-  sidebarActiveBorder: 'rgba(18, 181, 201, 0.45)',
-  sidebarGlow: 'rgba(18, 181, 201, 0.45)',
+  /* Navigation — white sidebar (per reference); `sidebar` stays a dark ink
+     colour so existing shadow / toast / dark-text uses remain legible. */
+  sidebar: '#202936',
+  sidebarSurface: '#FAFBFB',
+  sidebarDeep: '#202936',
+  sidebarElevated: '#FFFFFF',
+  sidebarText: '#202936',
+  sidebarMuted: '#606873',
+  sidebarBorder: '#ECEFEF',
+  sidebarActive: '#10A99F',
+  sidebarActiveBorder: '#10A99F',
+  sidebarGlow: 'rgba(16, 169, 159, 0.35)',
 
   /* Legacy keys retained */
-  dark: '#0C2E3A',
+  dark: '#202936',
   tabBar: 'rgba(255, 255, 255, 0.96)',
-  headerBg: 'rgba(243, 248, 251, 0.94)',
+  headerBg: 'rgba(245, 246, 246, 0.94)',
 } as const;
 
 export type Palette = typeof palette;
@@ -123,8 +126,8 @@ export const type = {
 } as const;
 
 export const radius = {
-  sheet: 20,
-  xl: 20,
+  sheet: 24,
+  xl: 24,
   card: 16,
   lg: 14,
   group: 12,
@@ -141,7 +144,7 @@ export const spacing = { xxs: 2, xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, 
 export const minTouch = 44;
 
 export const shadowCard = {
-  shadowColor: '#0C2E3A',
+  shadowColor: '#192D37',
   shadowOpacity: 0.05,
   shadowRadius: 18,
   shadowOffset: { width: 0, height: 6 },
@@ -149,7 +152,7 @@ export const shadowCard = {
 } as const;
 
 export const shadowPop = {
-  shadowColor: '#0C2E3A',
+  shadowColor: '#192D37',
   shadowOpacity: 0.14,
   shadowRadius: 28,
   shadowOffset: { width: 0, height: 12 },
@@ -157,7 +160,7 @@ export const shadowPop = {
 } as const;
 
 export const shadowSidebar = {
-  shadowColor: '#0C2E3A',
+  shadowColor: '#192D37',
   shadowOpacity: 0.18,
   shadowRadius: 24,
   shadowOffset: { width: 6, height: 0 },
@@ -216,7 +219,7 @@ export function toneColors(tone: 'neutral' | 'ok' | 'warn' | 'error' | 'info' | 
 /** Visible focus indicator for keyboard navigation (web). */
 export const focus = {
   color: palette.tint,
-  ring: '#8FE0EA',
+  ring: '#9ADBD5',
   width: 2,
   offset: 2,
 } as const;
@@ -263,33 +266,31 @@ export const breakpoints = {
 
 /** Brand gradients (consumed by LinearGradient `colors`). */
 export const gradient = {
-  /** Cyan → blue brand sweep — hero accents, primary emphasis. */
-  brand: ['#1FC8D6', '#12B5C9', '#2B9BE0'] as const,
-  /** Bright aqua — KPI accents, CTAs. */
-  ember: ['#2FD0DC', '#12B5C9'] as const,
-  /** Deep teal-navy — rails, headers, dark heroes. */
-  steel: ['#143E4C', '#0C2E3A', '#07212B'] as const,
-  /** Sky-blue secondary. */
-  iron: ['#49ADEA', '#2B9BE0'] as const,
-  /** Teal "intelligence" accent. */
-  teal: ['#17C0CE', '#0E96A8'] as const,
-  /** Very soft canvas wash for section backgrounds. */
-  wash: ['#FFFFFF', '#F3F8FB'] as const,
-  /** Soft cyan tint wash for highlighted cards. */
-  tintWash: ['#EAF9FB', '#E2F6F9'] as const,
+  /** Teal brand sweep. */
+  brand: ['#18BDB1', '#10A99F', '#078F88'] as const,
+  /** Promo / feature card: mint-teal. */
+  ember: ['#56C9BC', '#10A99F'] as const,
+  /** Legacy key (was dark): now a calm teal sweep, no dark surfaces. */
+  steel: ['#2DB8AC', '#10A99F', '#078F88'] as const,
+  /** Blue-violet secondary. */
+  iron: ['#7C93F0', '#5474E8'] as const,
+  teal: ['#18BDB1', '#10A99F'] as const,
+  wash: ['#FFFFFF', '#F5F6F6'] as const,
+  /** Pale mint decorative wash (cards' corner shapes). */
+  tintWash: ['#EAF9F6', '#DDF5EE'] as const,
 } as const;
 
 /**
  * Elevation scale (Material-style). Each level is a usable RN/web shadow.
  * Shadow colour is the brand dark steel so depth reads warm, not grey.
  */
-const SH = '#0C2E3A';
+const SH = '#192D37';
 export const elevation = {
   0: { shadowColor: SH, shadowOpacity: 0, shadowRadius: 0, shadowOffset: { width: 0, height: 0 }, elevation: 0 },
-  1: { shadowColor: SH, shadowOpacity: 0.05, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
-  2: { shadowColor: SH, shadowOpacity: 0.07, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 3 },
-  3: { shadowColor: SH, shadowOpacity: 0.10, shadowRadius: 24, shadowOffset: { width: 0, height: 12 }, elevation: 6 },
-  4: { shadowColor: SH, shadowOpacity: 0.14, shadowRadius: 36, shadowOffset: { width: 0, height: 20 }, elevation: 12 },
+  1: { shadowColor: SH, shadowOpacity: 0.04, shadowRadius: 6, shadowOffset: { width: 0, height: 1 }, elevation: 1 },
+  2: { shadowColor: SH, shadowOpacity: 0.05, shadowRadius: 12, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
+  3: { shadowColor: SH, shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
+  4: { shadowColor: SH, shadowOpacity: 0.12, shadowRadius: 28, shadowOffset: { width: 0, height: 14 }, elevation: 10 },
 } as const;
 
 /** Glass surface (frosted card) — translucent fill + hairline highlight. */
@@ -302,10 +303,10 @@ export const glass = {
 
 /** Soft "halo" tints for icon badges and accent surfaces. */
 export const halo = {
-  brand: 'rgba(18, 181, 201, 0.14)',
-  brandStrong: 'rgba(18, 181, 201, 0.22)',
-  teal: 'rgba(43, 155, 224, 0.12)',
-  success: 'rgba(14, 159, 110, 0.12)',
-  warning: 'rgba(198, 112, 11, 0.12)',
-  error: 'rgba(198, 56, 45, 0.12)',
+  brand: 'rgba(16, 169, 159, 0.12)',
+  brandStrong: 'rgba(16, 169, 159, 0.20)',
+  teal: 'rgba(84, 116, 232, 0.12)',
+  success: 'rgba(32, 166, 90, 0.12)',
+  warning: 'rgba(230, 162, 60, 0.14)',
+  error: 'rgba(228, 91, 101, 0.12)',
 } as const;

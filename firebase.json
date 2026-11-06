@@ -2,7 +2,7 @@
   "firestore": { "rules": "firebase/firestore.rules" },
   "storage": { "rules": "firebase/storage.rules" },
   "hosting": {
-    "public": "dist",
+    "public": "web-build",
     "ignore": [
       "firebase.json",
       "**/.*",

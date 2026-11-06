@@ -261,3 +261,9 @@ export const JOURNEY: JourneyStep[] = [
   { n: 13, title: 'Close Month', route: '/(app)/monthly-close', icon: 'calendarClock', show: 'Work the checklist and lock the month.', output: 'Locked period + cost pack' },
   { n: 14, title: 'Executive Dashboard', route: '/(app)/dashboard', icon: 'layoutDashboard', show: 'See the whole month reflected in management KPIs.', output: 'The story lands' },
 ];
+
+/* ------------------------------------------------ Dashboard trend series */
+/** SAMPLE 6-month series for the dashboard Analytics Overview (labelled SAMPLE in UI). */
+export const TREND_MONTHS = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
+export const PRODUCTION_TREND = [380, 410, 395, 430, 445, 460]; // tonnes / month
+export const YIELD_TREND = [93.6, 93.9, 94.0, 94.1, 94.0, 94.2]; // %

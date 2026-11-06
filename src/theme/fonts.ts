@@ -14,7 +14,7 @@ import { Platform } from 'react-native';
  * Idempotent: safe to call on every mount; it injects the <link> tags once.
  */
 const GOOGLE_FONTS_HREF =
-  'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap';
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap';
 
 export function ensureBrandFonts(): void {
   if (Platform.OS !== 'web') return;

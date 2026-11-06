@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -10,20 +9,15 @@ import {
   View,
 } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
-import {
-  fontStack,
-  palette,
-  radius,
-  shadowSidebar,
-  type,
-} from '../theme/tokens';
+import { elevation, fontStack, palette, radius, type } from '../theme/tokens';
 import { MODULE_GROUPS, modules, modulesForRoles } from '../config/modules';
 import type { Role } from '../lib/permissions';
 import { useSession } from '../store/session';
+import { demoDb } from '../mocks/demo';
 import { BottomNav } from './BottomNav';
 import { ToastHost } from './Toast';
 import { Icon, ModuleIcon } from './Icon';
-import { Avatar, BrandMark, IconButton } from './ui';
+import { Avatar, BrandMark } from './ui';
 import { PermissionDenied } from './PermissionDenied';
 
 /** Routes that are always reachable regardless of role. */
@@ -37,9 +31,15 @@ const PERIOD_LABEL: Record<string, string> = {
   '202610': 'Oct 2026',
 };
 
-function roleLabel(roles: Role[]): string {
-  if (!roles.length) return 'Guest';
-  return roles[0]!.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
+type HoverState = { pressed: boolean; hovered?: boolean };
+
+function displayName(email: string | null): string {
+  const local = (email ?? 'demo@alleima.example').split('@')[0] ?? 'demo';
+  return local
+    .split(/[._-]/)
+    .filter(Boolean)
+    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+    .join(' ');
 }
 
 export function AppShell({ roles, children }: { roles: Role[]; children: React.ReactNode }) {
@@ -52,7 +52,7 @@ export function AppShell({ roles, children }: { roles: Role[]; children: React.R
   const [searchFocus, setSearchFocus] = useState(false);
   const wide = width >= 1024;
   const compact = width < 760;
-  const roomy = width >= 1320;
+  const showPeriod = width >= 1240;
   const visible = modulesForRoles(roles);
 
   const activeModule = visible.find((m) => pathname.includes(m.id));
@@ -63,18 +63,29 @@ export function AppShell({ roles, children }: { roles: Role[]; children: React.R
     !!routeModule &&
     !ALWAYS_ALLOWED.includes(routeModule.id) &&
     !visible.some((m) => m.id === routeModule.id);
+
   const q = query.trim().toLowerCase();
-  const matches = q ? modules.filter((m) => m.title.toLowerCase().includes(q) || m.short.toLowerCase().includes(q)).slice(0, 7) : [];
+  const matches = q
+    ? modules.filter((m) => m.title.toLowerCase().includes(q) || m.short.toLowerCase().includes(q)).slice(0, 7)
+    : [];
+  // Real count (no hardcoded badge): pending approvals in the session store.
+  const pending = demoDb.approvals.filter((a) => a.status === 'pending').length;
+  const name = displayName(email);
 
   function go(route: string): void {
     setQuery('');
     setSearchFocus(false);
     router.push(route as never);
   }
+  function logout(): void {
+    signOut();
+    router.replace('/(auth)/sign-in' as never);
+  }
 
+  /* ------------------------------------------------------------ Search -- */
   const SearchBox = (
-    <View style={[styles.searchWrap, searchFocus && styles.searchWrapFocus, compact && { flex: 1 }]}>
-      <View style={[styles.searchField, searchFocus && { borderColor: palette.tint, backgroundColor: palette.card }]}>
+    <View style={[styles.searchWrap, compact && { flex: 1 }]}>
+      <View style={[styles.searchField, searchFocus && styles.searchFieldFocus]}>
         <Icon name="search" size={17} color={palette.text3} strokeWidth={2} />
         <TextInput
           value={query}
@@ -89,12 +100,8 @@ export function AppShell({ roles, children }: { roles: Role[]; children: React.R
         />
         {query ? (
           <Pressable onPress={() => setQuery('')} accessibilityRole="button" accessibilityLabel="Clear search" style={styles.searchClear}>
-            <Icon name="x" size={14} color={palette.text2} strokeWidth={2.2} />
+            <Icon name="x" size={13} color={palette.text2} strokeWidth={2.2} />
           </Pressable>
-        ) : !compact ? (
-          <View style={styles.kbd}>
-            <Text style={styles.kbdT}>{Platform.OS === 'web' ? 'Ctrl K' : '⌘ K'}</Text>
-          </View>
         ) : null}
       </View>
       {searchFocus && query ? (
@@ -108,7 +115,7 @@ export function AppShell({ roles, children }: { roles: Role[]; children: React.R
               <Pressable
                 key={m.id}
                 onPress={() => go(m.route)}
-                style={({ pressed }) => [styles.resultRow, pressed && { backgroundColor: palette.bgAlt }]}
+                style={({ pressed, hovered }: HoverState) => [styles.resultRow, (pressed || hovered) && { backgroundColor: palette.cardMuted }]}
                 accessibilityRole="button"
                 accessibilityLabel={m.title}
               >
@@ -128,56 +135,106 @@ export function AppShell({ roles, children }: { roles: Role[]; children: React.R
     </View>
   );
 
+  /* ------------------------------------------------------------ Period -- */
   const PeriodControl = (
-    <View style={styles.periodWrap} accessibilityRole="tablist" accessibilityLabel="Reporting period">
-      <View style={styles.periodLabel}>
-        <Icon name="calendarDays" size={14} color={palette.text2} />
-        {roomy ? <Text style={styles.periodLabelT}>{PERIOD_LABEL[period] ?? period}</Text> : null}
-      </View>
-      <View style={styles.periodTrack}>
-        {PERIODS.map((p) => {
-          const on = p === period;
-          return (
-            <Pressable
-              key={p}
-              onPress={() => setSession({ period: p })}
-              accessibilityRole="button"
-              accessibilityLabel={`Period ${PERIOD_LABEL[p]}`}
-              accessibilityState={{ selected: on }}
-              style={[styles.periodOpt, on && styles.periodOptOn]}
-            >
-              <Text style={[styles.periodOptT, { color: on ? palette.text : palette.text2 }]}>{p.slice(4)}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
+    <View style={styles.periodTrack} accessibilityRole="tablist" accessibilityLabel="Reporting period">
+      {PERIODS.map((p) => {
+        const on = p === period;
+        return (
+          <Pressable
+            key={p}
+            onPress={() => setSession({ period: p })}
+            accessibilityRole="button"
+            accessibilityLabel={`Period ${PERIOD_LABEL[p]}`}
+            accessibilityState={{ selected: on }}
+            style={[styles.periodOpt, on && styles.periodOptOn]}
+          >
+            <Text style={[styles.periodOptT, { color: on ? palette.tintPressed : palette.text2 }]}>
+              {(PERIOD_LABEL[p] ?? p).split(' ')[0]}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
+  );
+
+  /* ---------------------------------------------------------- Sidebar -- */
+  const NavItem = ({ id, title, route }: { id: string; title: string; route: string }) => {
+    const active = activeModule?.id === id;
+    return (
+      <Pressable
+        onPress={() => go(route)}
+        accessibilityRole="button"
+        accessibilityLabel={title}
+        accessibilityState={{ selected: active }}
+        style={({ pressed, hovered }: HoverState) => [
+          styles.navItem,
+          collapsed && styles.navItemCollapsed,
+          active && styles.navItemActive,
+          !active && (pressed || hovered) ? { backgroundColor: palette.filled } : null,
+        ]}
+      >
+        <ModuleIcon id={id} size={18} color={active ? '#FFFFFF' : palette.text2} strokeWidth={active ? 2.1 : 1.8} />
+        {!collapsed ? (
+          <Text style={[styles.navLabel, active && styles.navLabelActive]} numberOfLines={1}>
+            {title}
+          </Text>
+        ) : null}
+      </Pressable>
+    );
+  };
+
+  const FooterLink = ({ icon, label, onPress, danger }: { icon: 'settings' | 'help' | 'logOut'; label: string; onPress: () => void; danger?: boolean }) => (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      style={({ pressed, hovered }: HoverState) => [
+        styles.footLink,
+        collapsed && { justifyContent: 'center', paddingHorizontal: 0 },
+        (pressed || hovered) && { backgroundColor: palette.filled },
+      ]}
+    >
+      <Icon name={icon} size={18} color={danger ? palette.error : palette.text2} strokeWidth={1.8} />
+      {!collapsed ? <Text style={[styles.footLinkT, danger && { color: palette.error }]}>{label}</Text> : null}
+    </Pressable>
   );
 
   return (
     <View style={styles.root}>
-      <View style={styles.body}>
+      <View style={[styles.body, wide && styles.bodyWide]}>
         {wide ? (
-          <View style={[styles.sidebar, collapsed ? styles.sidebarCollapsed : null, styles.sidebarShadow]}>
+          <View style={[styles.sidebar, collapsed && styles.sidebarCollapsed]}>
             <View style={[styles.brandRow, collapsed && { justifyContent: 'center' }]}>
               <Pressable
                 onPress={() => router.push('/(app)/overview' as never)}
                 accessibilityRole="button"
                 accessibilityLabel="Go to Overview"
-                style={[styles.brandBtn, collapsed && { paddingHorizontal: 0 }]}
+                style={styles.brandBtn}
               >
-                <BrandMark size={36} showWordmark={!collapsed} onDark />
+                <BrandMark size={34} showWordmark={!collapsed} />
               </Pressable>
+              {!collapsed ? (
+                <Pressable
+                  onPress={() => setCollapsed(true)}
+                  style={styles.collapseBtn}
+                  accessibilityRole="button"
+                  accessibilityLabel="Collapse navigation"
+                >
+                  <Icon name="panelClose" size={16} color={palette.text3} strokeWidth={1.9} />
+                </Pressable>
+              ) : null}
             </View>
-
-            <Pressable
-              onPress={() => setCollapsed((c) => !c)}
-              style={styles.collapseBtn}
-              accessibilityRole="button"
-              accessibilityLabel={collapsed ? 'Expand navigation' : 'Collapse navigation'}
-            >
-              <Icon name={collapsed ? 'panelOpen' : 'panelClose'} size={17} color={palette.sidebarMuted} strokeWidth={1.9} />
-            </Pressable>
+            {collapsed ? (
+              <Pressable
+                onPress={() => setCollapsed(false)}
+                style={[styles.collapseBtn, { alignSelf: 'center', marginBottom: 6 }]}
+                accessibilityRole="button"
+                accessibilityLabel="Expand navigation"
+              >
+                <Icon name="panelOpen" size={16} color={palette.text3} strokeWidth={1.9} />
+              </Pressable>
+            ) : null}
 
             <ScrollView style={styles.navScroll} showsVerticalScrollIndicator={false}>
               {MODULE_GROUPS.map((group) => {
@@ -185,140 +242,75 @@ export function AppShell({ roles, children }: { roles: Role[]; children: React.R
                 if (!items.length) return null;
                 return (
                   <View key={group} style={styles.navGroup}>
-                    {collapsed ? (
-                      <View style={styles.navDivider} />
-                    ) : (
-                      <Text style={styles.navGroupLabel}>{group.toUpperCase()}</Text>
-                    )}
-                    {items.map((m) => {
-                      const active = activeModule?.id === m.id;
-                      return (
-                        <Pressable
-                          key={m.id}
-                          onPress={() => go(m.route)}
-                          accessibilityRole="button"
-                          accessibilityLabel={m.title}
-                          accessibilityState={{ selected: active }}
-                          style={({ pressed }) => [
-                            styles.navItem,
-                            collapsed && styles.navItemCollapsed,
-                            active && styles.navItemActive,
-                            pressed && !active && { backgroundColor: 'rgba(255,255,255,0.05)' },
-                          ]}
-                        >
-                          {active ? <View style={styles.navAccent} /> : null}
-                          <ModuleIcon
-                            id={m.id}
-                            size={18}
-                            color={active ? '#FFFFFF' : palette.sidebarMuted}
-                            strokeWidth={active ? 2.1 : 1.8}
-                          />
-                          {!collapsed ? (
-                            <Text style={[styles.navLabel, active && styles.navLabelActive]} numberOfLines={1}>
-                              {m.title}
-                            </Text>
-                          ) : null}
-                          {!collapsed && active ? <View style={styles.navDot} /> : null}
-                        </Pressable>
-                      );
-                    })}
+                    {collapsed ? <View style={styles.navDivider} /> : <Text style={styles.navGroupLabel}>{group.toUpperCase()}</Text>}
+                    {items.map((m) => (
+                      <NavItem key={m.id} id={m.id} title={m.title} route={m.route} />
+                    ))}
                   </View>
                 );
               })}
             </ScrollView>
 
-            <View style={[styles.sidebarFooter, collapsed && styles.sidebarFooterCollapsed]}>
-              {!collapsed ? (
-                <View style={styles.demoRow}>
-                  <View style={styles.demoDot} />
-                  <Text style={styles.demoT}>Demo workspace · sample data</Text>
-                </View>
-              ) : null}
-              <Pressable
-                onPress={() => router.push('/(app)/profile' as never)}
-                accessibilityRole="button"
-                accessibilityLabel="Open profile"
-                style={[styles.userCard, collapsed && { justifyContent: 'center', paddingHorizontal: 0 }]}
-              >
-                <Avatar name={email ?? 'Demo User'} size={collapsed ? 32 : 34} tone="dark" />
-                {!collapsed ? (
-                  <View style={{ flex: 1, minWidth: 0 }}>
-                    <Text style={styles.userEmail} numberOfLines={1}>{email ?? 'demo@alleima.example'}</Text>
-                    <Text style={styles.userRole} numberOfLines={1}>{roleLabel(roles)} · {plantId ?? 'mehsana'}</Text>
-                  </View>
-                ) : null}
-                {!collapsed ? (
-                  <IconButton
-                    icon="logOut"
-                    label="Sign out"
-                    tone="inverse"
-                    size={30}
-                    iconSize={15}
-                    onPress={() => {
-                      signOut();
-                      router.replace('/(auth)/sign-in' as never);
-                    }}
-                  />
-                ) : null}
-              </Pressable>
+            <View style={styles.sidebarFooter}>
+              <FooterLink icon="settings" label="Settings" onPress={() => router.push('/(app)/profile' as never)} />
+              <FooterLink icon="help" label="Help" onPress={() => router.push('/(app)/review' as never)} />
+              <FooterLink icon="logOut" label="Logout" onPress={logout} danger />
             </View>
           </View>
         ) : null}
 
         <View style={styles.main}>
           <View style={[styles.header, compact && styles.headerCompact]}>
-            <View style={[styles.headerTop, compact && { width: '100%' }]}>
-              {compact ? (
-                <Pressable onPress={() => router.push('/(app)/overview' as never)} accessibilityRole="button" accessibilityLabel="Home" style={{ marginRight: 4 }}>
-                  <BrandMark size={32} showWordmark={false} />
-                </Pressable>
-              ) : (
-                <View style={styles.crumbWrap}>
-                  <Text style={styles.crumbHome}>Workspace</Text>
-                  <Icon name="chevronRight" size={13} color={palette.text3} />
-                  <Text style={styles.crumbCurrent} numberOfLines={1}>{activeModule?.short ?? 'Overview'}</Text>
-                  <View style={styles.demoPill}>
-                    <View style={styles.demoPillDot} />
-                    <Text style={styles.demoPillT}>DEMO</Text>
-                  </View>
-                </View>
-              )}
-
-              {compact ? (
-                <View style={styles.mobileBrand}>
-                  <Text style={styles.mobileBrandT}>Alleima</Text>
-                  <Text style={styles.mobileBrandS}>Cost Intelligence</Text>
+            {compact ? (
+              <Pressable onPress={() => router.push('/(app)/overview' as never)} accessibilityRole="button" accessibilityLabel="Home">
+                <BrandMark size={30} showWordmark={false} />
+              </Pressable>
+            ) : null}
+            {SearchBox}
+            <View style={styles.headerActions}>
+              {showPeriod ? PeriodControl : null}
+              {!compact ? (
+                <View style={styles.plantPill}>
+                  <Icon name="mapPin" size={14} color={palette.text2} />
+                  <Text style={styles.plantPillT}>{(plantId ?? 'mehsana').replace(/^./, (c) => c.toUpperCase())}</Text>
                 </View>
               ) : null}
-
-              {!compact ? SearchBox : null}
-
-              <View style={styles.headerActions}>
-                {compact ? null : PeriodControl}
-                {roomy ? (
-                  <View style={styles.plantPill}>
-                    <Icon name="mapPin" size={14} color={palette.text2} />
-                    <Text style={styles.plantPillT}>Mehsana</Text>
+              <Pressable
+                onPress={() => router.push('/(app)/notifications' as never)}
+                style={({ pressed, hovered }: HoverState) => [styles.iconCircle, (pressed || hovered) && { backgroundColor: palette.filled }]}
+                accessibilityRole="button"
+                accessibilityLabel="Notifications"
+              >
+                <Icon name="bell" size={18} color={palette.text2} strokeWidth={1.8} />
+              </Pressable>
+              <Pressable
+                onPress={() => router.push('/(app)/approvals' as never)}
+                style={({ pressed, hovered }: HoverState) => [styles.iconCircle, (pressed || hovered) && { backgroundColor: palette.filled }]}
+                accessibilityRole="button"
+                accessibilityLabel={pending ? `Approvals, ${pending} pending` : 'Approvals'}
+              >
+                <Icon name="listChecks" size={18} color={palette.text2} strokeWidth={1.8} />
+                {pending > 0 ? (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeT}>{pending}</Text>
                   </View>
                 ) : null}
-                <View style={styles.bellWrap}>
-                  <IconButton icon="bell" label="Notifications" onPress={() => router.push('/(app)/notifications' as never)} />
-                  <View style={styles.bellBadge}>
-                    <Text style={styles.bellBadgeT}>5</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => router.push('/(app)/profile' as never)}
+                accessibilityRole="button"
+                accessibilityLabel="Profile"
+                style={styles.userChip}
+              >
+                <Avatar name={name} size={34} />
+                {!compact ? (
+                  <View style={{ minWidth: 0, maxWidth: 170 }}>
+                    <Text style={styles.userName} numberOfLines={1}>{name}</Text>
+                    <Text style={styles.userEmail} numberOfLines={1}>{email ?? 'demo@alleima.example'}</Text>
                   </View>
-                </View>
-                <Pressable onPress={() => router.push('/(app)/profile' as never)} accessibilityRole="button" accessibilityLabel="Profile" style={styles.avatarBtn}>
-                  <Avatar name={email ?? 'Demo User'} size={34} />
-                </Pressable>
-              </View>
+                ) : null}
+              </Pressable>
             </View>
-
-            {compact ? (
-              <View style={styles.headerMobileRow}>
-                {SearchBox}
-                {PeriodControl}
-              </View>
-            ) : null}
           </View>
 
           <ScrollView
@@ -342,199 +334,105 @@ export function AppShell({ roles, children }: { roles: Role[]; children: React.R
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: palette.bg },
   body: { flex: 1, flexDirection: 'row' },
+  bodyWide: { padding: 16, gap: 16 },
+
+  /* Sidebar */
   sidebar: {
-    width: 262,
-    backgroundColor: palette.sidebar,
+    width: 264,
+    backgroundColor: palette.sidebarSurface,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: palette.border,
     paddingHorizontal: 12,
-    paddingTop: 18,
-    paddingBottom: 12,
-    ...shadowSidebar,
+    paddingTop: 16,
+    paddingBottom: 10,
+    ...elevation[2],
   } as never,
-  sidebarShadow: { zIndex: 20 },
-  sidebarCollapsed: { width: 82, paddingHorizontal: 10 },
-  brandRow: { flexDirection: 'row', alignItems: 'center', minHeight: 44, paddingHorizontal: 4 },
-  brandBtn: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4, paddingVertical: 2 },
-  collapseBtn: {
-    alignSelf: 'flex-end',
-    width: 30,
-    height: 30,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 4,
-    marginBottom: 4,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-  },
-  navScroll: { flex: 1, marginTop: 4 },
-  navGroup: { marginBottom: 8 },
-  navGroupLabel: {
-    ...type.caption2,
-    color: palette.sidebarMuted,
-    fontFamily: fontStack,
-    paddingHorizontal: 12,
-    paddingTop: 10,
-    paddingBottom: 6,
-    opacity: 0.85,
-  } as never,
+  sidebarCollapsed: { width: 76, paddingHorizontal: 10 },
+  brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44, paddingHorizontal: 4, marginBottom: 10 },
+  brandBtn: { flexDirection: 'row', alignItems: 'center', paddingVertical: 2 },
+  collapseBtn: { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.filled },
+  navScroll: { flex: 1 },
+  navGroup: { marginBottom: 6 },
+  navGroupLabel: { ...type.caption2, color: palette.text3, fontFamily: fontStack, paddingHorizontal: 12, paddingTop: 12, paddingBottom: 6 } as never,
   navDivider: { height: 1, backgroundColor: palette.sidebarBorder, marginVertical: 8, marginHorizontal: 10 },
   navItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    minHeight: 38,
+    gap: 12,
+    minHeight: 40,
     paddingHorizontal: 12,
-    borderRadius: 9,
+    borderRadius: radius.input,
     marginBottom: 2,
-    position: 'relative',
     cursor: 'pointer',
   } as never,
   navItemCollapsed: { justifyContent: 'center', paddingHorizontal: 0, minHeight: 42, marginBottom: 4 },
-  navItemActive: { backgroundColor: palette.sidebarActive, borderWidth: 1, borderColor: palette.sidebarActiveBorder },
-  navAccent: { position: 'absolute', left: -1, top: 9, bottom: 9, width: 3, borderRadius: 2, backgroundColor: palette.tint },
-  navLabel: { ...type.subhead, color: palette.sidebarMuted, fontFamily: fontStack, flex: 1, fontWeight: '500' } as never,
+  navItemActive: { backgroundColor: palette.tint, shadowColor: palette.tint, shadowOpacity: 0.3, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 3 } as never,
+  navLabel: { ...type.subhead, color: palette.text2, fontFamily: fontStack, flex: 1, fontWeight: '500' } as never,
   navLabelActive: { color: '#FFFFFF', fontWeight: '600' },
-  navDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: palette.tint },
-  sidebarFooter: {
-    borderTopWidth: 1,
-    borderTopColor: palette.sidebarBorder,
-    paddingTop: 10,
-    marginTop: 8,
-    gap: 8,
-  },
-  sidebarFooterCollapsed: { alignItems: 'center' },
-  demoRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 8 },
-  demoDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#FDB022' },
-  demoT: { ...type.caption1, color: palette.sidebarMuted, fontFamily: fontStack } as never,
-  userCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 9,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderWidth: 1,
-    borderColor: palette.sidebarBorder,
-    cursor: 'pointer',
-  } as never,
-  userEmail: { ...type.footnote, color: palette.sidebarText, fontWeight: '600', fontFamily: fontStack } as never,
-  userRole: { ...type.caption1, color: palette.sidebarMuted, fontFamily: fontStack, marginTop: 1 } as never,
+  sidebarFooter: { borderTopWidth: 1, borderTopColor: palette.sidebarBorder, paddingTop: 8, marginTop: 8, gap: 2 },
+  footLink: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 40, paddingHorizontal: 12, borderRadius: radius.input, cursor: 'pointer' } as never,
+  footLinkT: { ...type.subhead, color: palette.text2, fontFamily: fontStack, fontWeight: '500' } as never,
 
+  /* Main + header */
   main: { flex: 1, minWidth: 0 },
-  header: {
-    backgroundColor: palette.headerBg,
-    borderBottomWidth: 1,
-    borderBottomColor: palette.border,
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    gap: 10,
-    zIndex: 30,
-  },
-  headerCompact: { paddingHorizontal: 14, paddingVertical: 8, gap: 8 },
-  headerTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  crumbWrap: { flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1, minWidth: 110 },
-  crumbHome: { ...type.footnote, color: palette.text3, fontFamily: fontStack, fontWeight: '500' } as never,
-  crumbCurrent: { ...type.footnote, color: palette.text, fontFamily: fontStack, fontWeight: '600' } as never,
-  demoPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginLeft: 6,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: radius.pill,
-    backgroundColor: palette.warningSoft,
-    borderWidth: 1,
-    borderColor: palette.warningBorder,
-  },
-  demoPillDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: palette.warning },
-  demoPillT: { fontSize: 9.5, fontWeight: '800', color: palette.warning, letterSpacing: 0.6, fontFamily: fontStack },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 12, zIndex: 30, paddingHorizontal: 4, paddingBottom: 12 },
+  headerCompact: { paddingHorizontal: 16, paddingTop: 12, gap: 8 },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 0 },
 
-  searchWrap: { flex: 1, minWidth: 130, maxWidth: 420, position: 'relative', zIndex: 40 },
-  searchWrapFocus: { zIndex: 60 },
+  searchWrap: { position: 'relative', flex: 1, minWidth: 0, maxWidth: 520, zIndex: 40 } as never,
   searchField: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    minHeight: 38,
-    paddingHorizontal: 12,
-    borderRadius: radius.sm,
+    gap: 10,
+    minHeight: 46,
+    paddingHorizontal: 16,
+    overflow: 'hidden',
+    borderRadius: radius.pill,
     backgroundColor: palette.card,
     borderWidth: 1,
     borderColor: palette.border,
-  },
-  searchInput: { flex: 1, fontSize: 13.5, paddingVertical: 6, color: palette.text, fontFamily: fontStack, outlineStyle: 'none' } as never,
+    ...elevation[1],
+  } as never,
+  searchFieldFocus: { borderColor: palette.tint },
+  searchInput: { flex: 1, minWidth: 0, fontSize: 13.5, color: palette.text, fontFamily: fontStack, paddingVertical: 8, outlineStyle: 'none' } as never,
   searchClear: { width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.filled },
-  kbd: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 5, borderWidth: 1, borderColor: palette.border, backgroundColor: palette.bgAlt },
-  kbdT: { fontSize: 10, color: palette.text3, fontWeight: '600', fontFamily: fontStack },
   results: {
     position: 'absolute',
-    top: 44,
+    top: 52,
     left: 0,
     right: 0,
     backgroundColor: palette.card,
-    borderRadius: radius.group,
+    borderRadius: radius.card,
     borderWidth: 1,
     borderColor: palette.border,
     padding: 6,
-    shadowColor: palette.sidebar,
-    shadowOpacity: 0.14,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 10,
+    ...elevation[4],
   } as never,
-  resultRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 8, paddingVertical: 8, borderRadius: 8, cursor: 'pointer' } as never,
-  resultIcon: { width: 30, height: 30, borderRadius: 8, backgroundColor: palette.tintSoft, alignItems: 'center', justifyContent: 'center' },
-  resultTitle: { ...type.footnote, color: palette.text, fontWeight: '600', fontFamily: fontStack } as never,
-  resultGroup: { ...type.caption1, color: palette.text3, fontFamily: fontStack, marginTop: 1 } as never,
+  resultRow: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderRadius: radius.input, cursor: 'pointer' } as never,
+  resultIcon: { width: 32, height: 32, borderRadius: 10, backgroundColor: palette.tintSoft, alignItems: 'center', justifyContent: 'center' },
+  resultTitle: { ...type.footnote, fontWeight: '600', color: palette.text, fontFamily: fontStack } as never,
+  resultGroup: { ...type.caption1, color: palette.text3, fontFamily: fontStack } as never,
   resultEmpty: { padding: 14 },
   resultEmptyT: { ...type.footnote, color: palette.text2, fontFamily: fontStack } as never,
 
-  headerActions: { flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: 'auto' },
-  plantPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    minHeight: 36,
-    paddingHorizontal: 10,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: palette.border,
-    backgroundColor: palette.card,
-  },
-  plantPillT: { ...type.caption1, color: palette.text2, fontWeight: '600', fontFamily: fontStack } as never,
-  bellWrap: { position: 'relative' },
-  bellBadge: {
-    position: 'absolute',
-    top: 2,
-    right: 1,
-    minWidth: 15,
-    height: 15,
-    borderRadius: 8,
-    backgroundColor: palette.error,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: palette.card,
-  },
-  bellBadgeT: { color: '#fff', fontSize: 8.5, fontWeight: '800', fontFamily: fontStack },
-  avatarBtn: { borderRadius: 999, cursor: 'pointer' } as never,
+  periodTrack: { flexDirection: 'row', backgroundColor: palette.card, borderRadius: radius.input, padding: 3, gap: 2, borderWidth: 1, borderColor: palette.border },
+  periodOpt: { minWidth: 40, height: 32, paddingHorizontal: 9, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center' },
+  periodOptOn: { backgroundColor: palette.tintSoft },
+  periodOptT: { fontSize: 12, fontWeight: '600', fontFamily: fontStack },
+  plantPill: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 40, paddingHorizontal: 12, borderRadius: radius.pill, backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border },
+  plantPillT: { ...type.footnote, fontWeight: '600', color: palette.text2, fontFamily: fontStack } as never,
+  iconCircle: { width: 40, height: 40, borderRadius: 20, backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border, alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as never,
+  badge: { position: 'absolute', top: -3, right: -3, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: palette.tint, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4, borderWidth: 2, borderColor: palette.bg },
+  badgeT: { fontSize: 10, fontWeight: '700', color: '#fff', fontFamily: fontStack },
+  userChip: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 46, paddingLeft: 6, paddingRight: 14, borderRadius: radius.pill, backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border, cursor: 'pointer', ...elevation[1] } as never,
+  userName: { ...type.footnote, fontWeight: '700', color: palette.text, fontFamily: fontStack } as never,
+  userEmail: { ...type.caption1, color: palette.text3, fontFamily: fontStack, marginTop: 1 } as never,
 
-  periodWrap: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  periodLabel: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingRight: 2 },
-  periodLabelT: { ...type.caption1, color: palette.text2, fontWeight: '600', fontFamily: fontStack } as never,
-  periodTrack: { flexDirection: 'row', backgroundColor: palette.bgAlt, borderRadius: 9, padding: 3, gap: 2 },
-  periodOpt: { minWidth: 32, height: 28, paddingHorizontal: 7, borderRadius: 7, alignItems: 'center', justifyContent: 'center' },
-  periodOptOn: { backgroundColor: palette.card, shadowColor: palette.sidebar, shadowOpacity: 0.08, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 1 } as never,
-  periodOptT: { fontSize: 11.5, fontWeight: '700', fontFamily: fontStack },
-
-  headerMobileRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  mobileBrand: { flex: 1, justifyContent: 'center' },
-  mobileBrandT: { ...type.headline, color: palette.text, fontFamily: fontStack, letterSpacing: -0.2 } as never,
-  mobileBrandS: { ...type.caption1, color: palette.text3, fontFamily: fontStack, letterSpacing: 0.3 } as never,
-
+  /* Content */
   scroll: { flex: 1 },
-  content: { paddingHorizontal: 28, paddingTop: 22, paddingBottom: 40, alignItems: 'center' },
-  contentCompact: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 104 },
-  contentInner: { width: '100%', maxWidth: 1380 },
+  content: { paddingHorizontal: 4, paddingBottom: 40 },
+  contentCompact: { paddingHorizontal: 16, paddingBottom: 110 },
+  contentInner: { width: '100%', maxWidth: 1480, alignSelf: 'center' },
 });
+

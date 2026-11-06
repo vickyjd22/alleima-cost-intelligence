@@ -8,14 +8,14 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "backgroundColor": "#0C2E3A"
+      "backgroundColor": "#10A99F"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0C2E3A"
+        "backgroundColor": "#10A99F"
       }
     },
     "web": {

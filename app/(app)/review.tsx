@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   stat: { flex: 1, backgroundColor: palette.card, paddingVertical: 20, paddingHorizontal: 18, minWidth: 140 },
-  statValue: { fontSize: 32, fontWeight: '800', color: palette.sidebar, fontFamily: fontStack, letterSpacing: -0.8 },
+  statValue: { fontSize: 32, fontWeight: '800', color: palette.text, fontFamily: fontStack, letterSpacing: -0.8 },
   statLabel: { ...type.footnote, color: palette.text2, marginTop: 4, fontFamily: fontStack } as never,
   progressCard: { flexDirection: 'row', alignItems: 'center', padding: 18 },
   progressLeft: { flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1, flexWrap: 'wrap' },

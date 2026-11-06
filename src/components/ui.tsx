@@ -192,7 +192,7 @@ export function IconButton({
   const [hover, setHover] = useState(false);
   const [focused, setFocused] = useState(false);
   const bg = tone === 'inverse' ? 'rgba(255,255,255,0.10)' : tone === 'tint' ? palette.tintSoft : palette.filled;
-  const fg = tone === 'inverse' ? palette.sidebarText : tone === 'tint' ? palette.tint : palette.text2;
+  const fg = tone === 'inverse' ? '#FFFFFF' : tone === 'tint' ? palette.tint : palette.text2;
   return (
     <Pressable
       onPress={onPress}
@@ -371,7 +371,7 @@ export function Callout({
 
 /* ---------------------------------------------------------------- Avatar -- */
 
-export function Avatar({ name, size = 36, tone = 'tint' }: { name?: string | null; size?: number; tone?: 'tint' | 'dark' }) {
+export function Avatar({ name, size = 36, tone = 'tint', color }: { name?: string | null; size?: number; tone?: 'tint' | 'dark'; color?: string }) {
   const initials = (name ?? 'U')
     .split(/[.\s@_-]+/)
     .filter(Boolean)
@@ -386,7 +386,7 @@ export function Avatar({ name, size = 36, tone = 'tint' }: { name?: string | nul
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: tone === 'dark' ? 'rgba(255,255,255,0.12)' : palette.tint,
+          backgroundColor: color ?? (tone === 'dark' ? 'rgba(255,255,255,0.12)' : palette.tint),
         },
       ]}
     >
@@ -468,11 +468,11 @@ export function BrandMark({
   onDark?: boolean;
 }) {
   // Wordmark ink: near-black on light surfaces, light on the dark rail.
-  const wordColor = onDark ? palette.sidebarText : palette.text;
-  const subColor = onDark ? palette.sidebarMuted : palette.text3;
+  const wordColor = onDark ? '#FFFFFF' : palette.text;
+  const subColor = onDark ? 'rgba(255,255,255,0.78)' : palette.text3;
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: size * 0.26 }}>
-      <AlleimaGlyph size={size} />
+      <AlleimaGlyph size={size} color={onDark ? '#FFFFFF' : palette.tint} />
       {showWordmark ? (
         <View>
           <Text style={{ color: wordColor, fontSize: size * 0.56, fontWeight: '800', fontFamily: fontStack, letterSpacing: -0.6 }}>

@@ -294,9 +294,10 @@ const styles = StyleSheet.create({
   readVal: { ...type.footnote, fontWeight: '700', color: palette.text, marginTop: 3, fontFamily: fontStack } as never,
 
   qtyRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
-  step: { width: 40, height: 44, borderRadius: radius.input, borderWidth: 1, borderColor: palette.border, backgroundColor: palette.filled, alignItems: 'center', justifyContent: 'center' },
+  step: { flexShrink: 0, width: 40, height: 44, borderRadius: radius.input, borderWidth: 1, borderColor: palette.border, backgroundColor: palette.filled, alignItems: 'center', justifyContent: 'center' },
   qtyInput: {
     flex: 1,
+    minWidth: 0,
     minHeight: 44,
     borderWidth: 1,
     borderColor: palette.borderStrong,
